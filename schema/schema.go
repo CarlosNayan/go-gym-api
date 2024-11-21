@@ -50,11 +50,12 @@ type Checkin struct {
 	Gym  Gym  `gorm:"foreignKey:IDGym;constraint:OnDelete:CASCADE;referencedKey:id_gym"`
 }
 
-func SetupDatabase(database string) {
+func SetupDatabase(database string) *gorm.DB {
 	dsn := database
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		log.Fatal(err)
+		panic(err)
 	}
 
 	// Criar tabelas com snake_case
@@ -62,4 +63,6 @@ func SetupDatabase(database string) {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	return db
 }

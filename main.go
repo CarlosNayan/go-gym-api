@@ -23,9 +23,9 @@ func main() {
 
 	app := fiber.New()
 
-	schema.SetupDatabase(envConfig.DatabaseURL)
+	db := schema.SetupDatabase(envConfig.DatabaseURL)
 
-	users.Register(app)
+	users.Register(app, db)
 
 	port := 3000
 	if envConfig.Port != 0 {
