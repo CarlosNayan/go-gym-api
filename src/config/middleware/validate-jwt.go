@@ -47,7 +47,7 @@ func ValidateJWT(c *fiber.Ctx) error {
 
 	if claims, ok := token.Claims.(*CustomClaims); ok && token.Valid {
 
-		c.Locals("user_id", claims.Sub, "role", claims.Role)
+		c.Locals("sub", claims.Sub, "role", claims.Role)
 		return c.Next()
 	}
 

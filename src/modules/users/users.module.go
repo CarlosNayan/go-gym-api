@@ -2,7 +2,6 @@ package users
 
 import (
 	"api-gym-on-go/src/config/middleware"
-	"api-gym-on-go/src/modules/users/controllers"
 	"api-gym-on-go/src/modules/users/repository"
 	"api-gym-on-go/src/modules/users/services"
 
@@ -13,7 +12,15 @@ import (
 func Register(app *fiber.App, db *gorm.DB) {
 	userRepo := repository.NewUserRepository(db)
 	userService := services.NewUserService(userRepo)
-	userController := controllers.NewUserController(userService)
 
-	app.Get("/users/:id", middleware.ValidateJWT, userController.GetUser)
+	app.Get("/users/me", middleware.ValidateJWT, func(c *fiber.Ctx) error {
+		id_user := c.Locals("sub").(string)
+
+		user, err := userService.GetUserByID(id_user)
+		if err != nil {
+			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": err.Error()})
+		}
+
+		return c.JSON(user)
+	})
 }

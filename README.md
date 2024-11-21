@@ -13,3 +13,8 @@
 - go test -cover ./test
 - go test -coverprofile=coverage.out ./test
 - go tool cover -html=coverage.out
+
+
+## Docker
+
+ - docker build -t api-gym-on-go .

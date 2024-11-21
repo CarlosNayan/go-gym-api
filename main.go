@@ -6,6 +6,7 @@ import (
 
 	"api-gym-on-go/schema"
 	"api-gym-on-go/src/config/env"
+	"api-gym-on-go/src/modules/auth"
 	"api-gym-on-go/src/modules/users"
 
 	_ "github.com/lib/pq"
@@ -26,6 +27,7 @@ func main() {
 	db := schema.SetupDatabase(envConfig.DatabaseURL)
 
 	users.Register(app, db)
+	auth.Register(app, db)
 
 	port := 3000
 	if envConfig.Port != 0 {
