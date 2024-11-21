@@ -5,6 +5,8 @@ go 1.23.3
 require (
 	github.com/gofiber/fiber/v2 v2.52.5
 	github.com/lib/pq v1.10.9
+	gorm.io/driver/postgres v1.5.10
+	gorm.io/gorm v1.25.12
 )
 
 require (
@@ -28,6 +30,4 @@ require (
 	golang.org/x/sync v0.9.0 // indirect
 	golang.org/x/sys v0.27.0 // indirect
 	golang.org/x/text v0.20.0 // indirect
-	gorm.io/driver/postgres v1.5.10 // indirect
-	gorm.io/gorm v1.25.12 // indirect
 )
