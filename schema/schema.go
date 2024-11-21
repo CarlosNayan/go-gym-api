@@ -58,6 +58,7 @@ func SetupDatabase(database string) *gorm.DB {
 	err = db.AutoMigrate(&User{}, &Gym{}, &Checkin{})
 	if err != nil {
 		log.Fatal(err)
+		os.Exit(1)
 	}
 
 	return db
