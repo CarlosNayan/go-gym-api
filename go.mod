@@ -4,6 +4,7 @@ go 1.23.3
 
 require (
 	github.com/gofiber/fiber/v2 v2.52.5
+	github.com/golang-jwt/jwt/v4 v4.5.1
 	github.com/lib/pq v1.10.9
 	gorm.io/driver/postgres v1.5.10
 	gorm.io/gorm v1.25.12

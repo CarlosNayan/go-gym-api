@@ -2,13 +2,13 @@ package schema
 
 import (
 	"log"
+	"os"
 	"time"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
-// Enum para o campo Role
 type Role string
 
 const (
@@ -16,7 +16,6 @@ const (
 	RoleMember Role = "MEMBER"
 )
 
-// Modelo para a tabela users
 type User struct {
 	ID           string    `gorm:"column:id_user;primaryKey;type:uuid;default:gen_random_uuid()"`
 	UserName     string    `gorm:"column:user_name;type:varchar(255);not null"`
@@ -27,7 +26,6 @@ type User struct {
 	Checkins     []Checkin `gorm:"foreignKey:IDUser;constraint:OnDelete:CASCADE"`
 }
 
-// Modelo para a tabela gyms
 type Gym struct {
 	ID          string    `gorm:"column:id_gym;primaryKey;type:uuid;default:gen_random_uuid()"`
 	GymName     string    `gorm:"column:gym_name;type:varchar(255);not null"`
@@ -38,7 +36,6 @@ type Gym struct {
 	Checkins    []Checkin `gorm:"foreignKey:IDGym;constraint:OnDelete:CASCADE"`
 }
 
-// Modelo para a tabela checkins
 type Checkin struct {
 	ID          string     `gorm:"column:id_checkin;primaryKey;type:uuid;default:gen_random_uuid()"`
 	CreatedAt   time.Time  `gorm:"column:created_at;type:timestamp;default:now()"`
@@ -55,10 +52,9 @@ func SetupDatabase(database string) *gorm.DB {
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		log.Fatal(err)
-		panic(err)
+		os.Exit(1)
 	}
 
-	// Criar tabelas com snake_case
 	err = db.AutoMigrate(&User{}, &Gym{}, &Checkin{})
 	if err != nil {
 		log.Fatal(err)

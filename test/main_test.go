@@ -5,7 +5,6 @@ import (
 	"testing"
 )
 
-// TestSum testa a função Sum
 func TestSum(t *testing.T) {
 	t.Run("Testa soma de dois números positivos", func(t *testing.T) {
 		result := utils.Sum(2, 3)
