@@ -11,12 +11,12 @@ import (
 
 func Register(app *fiber.App, db *gorm.DB) {
 	userRepo := repository.NewUserRepository(db)
-	userService := services.NewUserService(userRepo)
+	usersMeService := services.NewUserMeService(userRepo)
 
 	app.Get("/users/me", middleware.ValidateJWT, func(c *fiber.Ctx) error {
 		id_user := c.Locals("sub").(string)
 
-		user, err := userService.GetUserByID(id_user)
+		user, err := usersMeService.GetUserByID(id_user)
 		if err != nil {
 			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": err.Error()})
 		}

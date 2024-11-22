@@ -5,16 +5,16 @@ import (
 	"errors"
 )
 
-type UserService struct {
+type UsersMeService struct {
 	UserRepository *repository.UserRepository
 }
 
-func NewUserService(userRepo *repository.UserRepository) *UserService {
-	return &UserService{UserRepository: userRepo}
+func NewUserMeService(userRepo *repository.UserRepository) *UsersMeService {
+	return &UsersMeService{UserRepository: userRepo}
 }
 
-func (s *UserService) GetUserByID(id string) (map[string]string, error) {
-	user, err := s.UserRepository.FindByID(id)
+func (ums *UsersMeService) GetUserByID(id string) (map[string]string, error) {
+	user, err := ums.UserRepository.FindByID(id)
 	if err != nil {
 		return nil, err
 	}

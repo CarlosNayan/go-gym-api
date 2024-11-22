@@ -1,7 +1,7 @@
 package repository
 
 import (
-	models "api-gym-on-go/schema"
+	"api-gym-on-go/schema"
 
 	"gorm.io/gorm"
 )
@@ -14,8 +14,8 @@ func NewUserRepository(db *gorm.DB) *UserRepository {
 	return &UserRepository{DB: db}
 }
 
-func (r *UserRepository) FindByID(id string) (*models.User, error) {
-	var user models.User
+func (r *UserRepository) FindByID(id string) (*schema.User, error) {
+	var user schema.User
 
 	result := r.DB.Where("id_user = ?", id).First(&user)
 
@@ -27,4 +27,8 @@ func (r *UserRepository) FindByID(id string) (*models.User, error) {
 	}
 
 	return &user, nil
+}
+
+func (r *UserRepository) Create(user *schema.User) error {
+	return r.DB.Create(user).Error
 }
