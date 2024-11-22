@@ -1,9 +1,9 @@
 package repository
 
 import (
-	"api-gym-on-go/schema"
-
 	"gorm.io/gorm"
+
+	"api-gym-on-go/schema"
 )
 
 type UserRepository struct {

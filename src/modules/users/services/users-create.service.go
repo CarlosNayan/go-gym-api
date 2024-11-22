@@ -3,6 +3,9 @@ package services
 import (
 	"api-gym-on-go/schema"
 	"api-gym-on-go/src/modules/users/repository"
+	"errors"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 type UsersCreateService struct {
@@ -14,5 +17,12 @@ func NewUsersCreateService(userRepo *repository.UserRepository) *UsersCreateServ
 }
 
 func (ucs *UsersCreateService) CreateUser(user *schema.User) error {
+	hash, err := bcrypt.GenerateFromPassword([]byte(user.PasswordHash), bcrypt.DefaultCost)
+	if err != nil {
+		return errors.New("invalid password")
+	}
+
+	user.PasswordHash = string(hash)
+
 	return ucs.UserRepository.Create(user)
 }

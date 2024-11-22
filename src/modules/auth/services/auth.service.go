@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v4"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type AuthService struct {
@@ -24,12 +25,14 @@ func (s *AuthService) Auth(email string, password string) (map[string]string, er
 	if err != nil {
 		return nil, err
 	}
+
 	if user == nil {
-		return nil, errors.New("user not found")
+		return nil, errors.New("invalid credentials")
 	}
 
-	if user.PasswordHash != password {
-		return nil, errors.New("invalid password")
+	error := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(password))
+	if error != nil {
+		return nil, errors.New("invalid credentials")
 	}
 
 	// access_token
