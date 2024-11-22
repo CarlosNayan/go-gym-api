@@ -7,6 +7,7 @@ import (
 	"api-gym-on-go/models"
 	"api-gym-on-go/src/config/env"
 	"api-gym-on-go/src/modules/auth"
+	"api-gym-on-go/src/modules/gyms"
 	"api-gym-on-go/src/modules/users"
 
 	"github.com/gofiber/fiber/v2"
@@ -27,6 +28,7 @@ func main() {
 	// Register modules
 	users.Register(app, db)
 	auth.Register(app, db)
+	gyms.Register(app, db)
 
 	// Start server
 	port := 3000
