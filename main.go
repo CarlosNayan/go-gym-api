@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"api-gym-on-go/schema"
+	"api-gym-on-go/models"
 	"api-gym-on-go/src/config/env"
 	"api-gym-on-go/src/modules/auth"
 	"api-gym-on-go/src/modules/users"
@@ -22,7 +22,7 @@ func main() {
 
 	// Startup services
 	app := fiber.New()
-	db := schema.SetupDatabase(envConfig.DatabaseURL)
+	db := models.SetupDatabase(envConfig.DatabaseURL)
 
 	// Register modules
 	users.Register(app, db)

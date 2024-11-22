@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"api-gym-on-go/schema"
+	"api-gym-on-go/models"
 
 	"gorm.io/gorm"
 )
@@ -14,8 +14,8 @@ func NewAuthRepository(db *gorm.DB) *UserRepository {
 	return &UserRepository{DB: db}
 }
 
-func (r *UserRepository) FindByEmail(email string) (*schema.User, error) {
-	var user schema.User
+func (r *UserRepository) FindByEmail(email string) (*models.User, error) {
+	var user models.User
 
 	result := r.DB.Where("email = ?", email).First(&user)
 

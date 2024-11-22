@@ -1,7 +1,7 @@
 package services
 
 import (
-	"api-gym-on-go/schema"
+	"api-gym-on-go/models"
 	"api-gym-on-go/src/modules/users/repository"
 	"errors"
 
@@ -16,7 +16,7 @@ func NewUsersCreateService(userRepo *repository.UserRepository) *UsersCreateServ
 	return &UsersCreateService{UserRepository: userRepo}
 }
 
-func (ucs *UsersCreateService) CreateUser(user *schema.User) error {
+func (ucs *UsersCreateService) CreateUser(user *models.User) error {
 	hash, err := bcrypt.GenerateFromPassword([]byte(user.PasswordHash), bcrypt.DefaultCost)
 	if err != nil {
 		return errors.New("invalid password")

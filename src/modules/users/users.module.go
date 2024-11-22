@@ -1,7 +1,7 @@
 package users
 
 import (
-	"api-gym-on-go/schema"
+	"api-gym-on-go/models"
 	"api-gym-on-go/src/config/middleware"
 	"api-gym-on-go/src/modules/users/repository"
 	"api-gym-on-go/src/modules/users/services"
@@ -27,7 +27,7 @@ func Register(app *fiber.App, db *gorm.DB) {
 	})
 
 	app.Post("/users/create", func(c *fiber.Ctx) error {
-		var user schema.User
+		var user models.User
 
 		if err := c.BodyParser(&user); err != nil {
 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid request body"})
