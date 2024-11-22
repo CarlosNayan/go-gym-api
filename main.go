@@ -9,8 +9,6 @@ import (
 	"api-gym-on-go/src/modules/auth"
 	"api-gym-on-go/src/modules/users"
 
-	_ "github.com/lib/pq"
-
 	"github.com/gofiber/fiber/v2"
 )
 
