@@ -14,7 +14,7 @@ func NewUserRepository(db *gorm.DB) *UserRepository {
 	return &UserRepository{DB: db}
 }
 
-func (r *UserRepository) FindByID(id string) (*models.User, error) {
+func (r *UserRepository) GetProfileById(id string) (*models.User, error) {
 	var user models.User
 
 	result := r.DB.Where("id_user = ?", id).First(&user)
@@ -29,6 +29,31 @@ func (r *UserRepository) FindByID(id string) (*models.User, error) {
 	return &user, nil
 }
 
-func (r *UserRepository) Create(user *models.User) error {
-	return r.DB.Create(user).Error
+func (r *UserRepository) UserEmailVerify(email string) (string, error) {
+	var user models.User
+
+	result := r.DB.Where("email = ?", email).First(&user)
+
+	if result.Error != nil {
+		if result.Error == gorm.ErrRecordNotFound {
+			return "", nil
+		}
+		return "", result.Error
+	}
+
+	if user.Email == email {
+		return user.Email, nil
+	} else {
+		return "", nil
+	}
+}
+
+func (r *UserRepository) CreateUser(user *models.User) (*models.User, error) {
+	var createdUser models.User
+	result := r.DB.Create(user).First(&createdUser)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return &createdUser, nil
 }

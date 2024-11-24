@@ -1,20 +1,20 @@
 package services
 
 import (
-	"api-gym-on-go/src/modules/users/repository"
+	"api-gym-on-go/src/modules/users/interfaces"
 	"errors"
 )
 
 type UsersMeService struct {
-	UserRepository *repository.UserRepository
+	UserRepository interfaces.UserRepository
 }
 
-func NewUserMeService(userRepo *repository.UserRepository) *UsersMeService {
+func NewUsersMeService(userRepo interfaces.UserRepository) *UsersMeService {
 	return &UsersMeService{UserRepository: userRepo}
 }
 
 func (ums *UsersMeService) GetUserByID(id string) (map[string]string, error) {
-	user, err := ums.UserRepository.FindByID(id)
+	user, err := ums.UserRepository.GetProfileById(id)
 	if err != nil {
 		return nil, err
 	}

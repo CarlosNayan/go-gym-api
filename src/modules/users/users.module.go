@@ -12,7 +12,7 @@ import (
 
 func Register(app *fiber.App, db *gorm.DB) {
 	userRepo := repository.NewUserRepository(db)
-	usersMeService := services.NewUserMeService(userRepo)
+	usersMeService := services.NewUsersMeService(userRepo)
 	usersCreateService := services.NewUsersCreateService(userRepo)
 
 	app.Get("/users/me", middleware.ValidateJWT, func(c *fiber.Ctx) error {
@@ -33,11 +33,11 @@ func Register(app *fiber.App, db *gorm.DB) {
 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid request body"})
 		}
 
-		err := usersCreateService.CreateUser(&user)
+		createdUser, err := usersCreateService.CreateUser(&user)
 		if err != nil {
 			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": err.Error()})
 		}
 
-		return c.JSON(user)
+		return c.JSON(createdUser)
 	})
 }
