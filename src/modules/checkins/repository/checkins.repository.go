@@ -23,7 +23,7 @@ func (cr *CheckinRepository) CreateCheckin(checkin *models.Checkin) error {
 func (cr *CheckinRepository) FindCheckinByIdOnDate(id_checkin string, date string) (*models.Checkin, error) {
 	var checkin models.Checkin
 
-	now, err := utils.NewMoment(date)
+	now, err := utils.NewMoment()
 	if err != nil {
 		log.Fatalf("Erro ao criar o data: %v", err)
 	}

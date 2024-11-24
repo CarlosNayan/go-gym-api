@@ -10,23 +10,27 @@ type Moment struct {
 }
 
 // NewMoment cria uma nova instância de Moment.
-func NewMoment(date interface{}) (*Moment, error) {
+func NewMoment(date ...interface{}) (*Moment, error) {
 	var t time.Time
-	switch v := date.(type) {
-	case nil:
+	if len(date) == 0 {
 		t = time.Now()
-	case time.Time:
-		t = v
-	case string:
-		var err error
-		t, err = time.Parse(time.RFC3339, v)
-		if err != nil {
-			return nil, errors.New("data inválida")
+	} else {
+		switch v := date[0].(type) {
+		case nil:
+			t = time.Now()
+		case time.Time:
+			t = v
+		case string:
+			var err error
+			t, err = time.Parse(time.RFC3339, v)
+			if err != nil {
+				return nil, errors.New("data inválida")
+			}
+		case int64:
+			t = time.Unix(v, 0)
+		default:
+			return nil, errors.New("tipo de data inválido")
 		}
-	case int64:
-		t = time.Unix(v, 0)
-	default:
-		return nil, errors.New("tipo de data inválido")
 	}
 	return &Moment{date: t}, nil
 }
@@ -126,8 +130,12 @@ func (m *Moment) IsSame(other *Moment) bool {
 
 // Diff calcula a diferença entre duas datas.
 func (m *Moment) Diff(other *Moment, unit string) int {
-	diff := other.date.Sub(m.date)
+	diff := m.date.Sub(other.date)
 	switch unit {
+	case "minutes":
+		return int(diff.Minutes())
+	case "hours":
+		return int(diff.Hours())
 	case "days":
 		return int(diff.Hours() / 24)
 	case "months":

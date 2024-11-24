@@ -2,10 +2,10 @@ package services
 
 import (
 	"api-gym-on-go/models"
+	"api-gym-on-go/src/config/errors"
 	"api-gym-on-go/src/config/utils"
 	"api-gym-on-go/src/modules/checkins/repository"
-	"errors"
-	"time"
+	"fmt"
 )
 
 type CheckinValidate struct {
@@ -21,14 +21,18 @@ func (cv *CheckinValidate) ValidateCheckin(id_checkin string) (nill *models.Chec
 	if err != nil {
 		return nil, err
 	}
-
-	moment, err := utils.NewMoment(checkin.CreatedAt)
-	if err != nil {
-		return nil, err
+	if checkin.ValidatedAt != nil {
+		return nil, &errors.CustomError{Message: "check-in already validated", Code: 400}
 	}
 
-	if moment.Diff(utils.Time(time.Now()), "minutes") > 20 {
-		return nil, errors.New("the check-in can only be validated until 20 minutes of its creation")
+	timeNow, _ := utils.NewMoment()
+	checkinCreatedAtMoment, _ := utils.NewMoment(checkin.CreatedAt)
+
+	difference := timeNow.Diff(checkinCreatedAtMoment, "minutes")
+	fmt.Print(difference)
+
+	if difference > 20 {
+		return nil, &errors.CustomError{Message: "check-in expired", Code: 400}
 	}
 
 	validatedCheckin, err := cv.CheckinRepository.UpdateCheckin(id_checkin)
