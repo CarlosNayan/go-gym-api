@@ -28,8 +28,8 @@ func (cr *CheckinRepository) FindCheckinByIdOnDate(id_checkin string, date strin
 		log.Fatalf("Erro ao criar o data: %v", err)
 	}
 
-	startOfDay := now.StartOf("day")
-	endOfDay := now.EndOf("day")
+	startOfDay := now.StartOf("day").Format()
+	endOfDay := now.EndOf("day").Format()
 
 	result := cr.DB.
 		Where("id_checkin = ? AND created_at BETWEEN ? AND ?", id_checkin, date, startOfDay, endOfDay).

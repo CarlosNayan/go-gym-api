@@ -40,45 +40,49 @@ func Time(date time.Time) *Moment {
 	return &Moment{date: date}
 }
 
-// StartOf retorna o início de uma unidade.
+// StartOf retorna o início de uma unidade, ajustado para UTC.
 func (m *Moment) StartOf(unit string) *Moment {
-	date := m.date
+	date := m.date.UTC() // Garantir que estamos em UTC
 	switch unit {
 	case "day":
-		date = time.Date(date.Year(), date.Month(), date.Day(), 0, 0, 0, 0, date.Location())
+		date = time.Date(date.Year(), date.Month(), date.Day(), 0, 0, 0, 0, time.UTC) // Início do dia em UTC
 	case "month":
-		date = time.Date(date.Year(), date.Month(), 1, 0, 0, 0, 0, date.Location())
+		date = time.Date(date.Year(), date.Month(), 1, 0, 0, 0, 0, time.UTC) // Início do mês em UTC
 	case "year":
-		date = time.Date(date.Year(), 1, 1, 0, 0, 0, 0, date.Location())
+		date = time.Date(date.Year(), 1, 1, 0, 0, 0, 0, time.UTC) // Início do ano em UTC
 	case "week":
 		weekday := int(date.Weekday())
 		date = date.AddDate(0, 0, -weekday)
-		date = time.Date(date.Year(), date.Month(), date.Day(), 0, 0, 0, 0, date.Location())
+		date = time.Date(date.Year(), date.Month(), date.Day(), 0, 0, 0, 0, time.UTC) // Início da semana em UTC
 	}
 	return &Moment{date: date}
 }
 
-// EndOf retorna o final de uma unidade.
+// EndOf retorna o final de uma unidade, ajustado para UTC.
 func (m *Moment) EndOf(unit string) *Moment {
-	date := m.date
+	date := m.date.UTC() // Garantir que estamos em UTC
 	switch unit {
 	case "day":
-		date = time.Date(date.Year(), date.Month(), date.Day(), 23, 59, 59, 999999999, date.Location())
+		date = time.Date(date.Year(), date.Month(), date.Day(), 23, 59, 59, 999999999, time.UTC) // Fim do dia em UTC
 	case "month":
-		date = time.Date(date.Year(), date.Month()+1, 0, 23, 59, 59, 999999999, date.Location())
+		date = time.Date(date.Year(), date.Month()+1, 0, 23, 59, 59, 999999999, time.UTC) // Fim do mês em UTC
 	case "year":
-		date = time.Date(date.Year()+1, 1, 0, 23, 59, 59, 999999999, date.Location())
+		date = time.Date(date.Year()+1, 1, 0, 23, 59, 59, 999999999, time.UTC) // Fim do ano em UTC
 	case "week":
 		weekday := int(date.Weekday())
 		date = date.AddDate(0, 0, 6-weekday)
-		date = time.Date(date.Year(), date.Month(), date.Day(), 23, 59, 59, 999999999, date.Location())
+		date = time.Date(date.Year(), date.Month(), date.Day(), 23, 59, 59, 999999999, time.UTC) // Fim da semana em UTC
 	}
 	return &Moment{date: date}
 }
 
 // Format retorna a data formatada.
-func (m *Moment) Format(formatString string) string {
-	return m.date.Format(formatString)
+func (m *Moment) Format(formatString ...string) string {
+	defaultFormat := time.RFC3339
+	if len(formatString) > 0 {
+		return m.date.Format(formatString[0])
+	}
+	return m.date.Format(defaultFormat)
 }
 
 // Add adiciona tempo à data.
