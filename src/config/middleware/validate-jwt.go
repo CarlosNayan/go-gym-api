@@ -40,15 +40,21 @@ func ValidateJWT(c *fiber.Ctx) error {
 
 	if err != nil {
 		if errors.Is(err, jwt.ErrSignatureInvalid) {
-			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Invalid token signature"})
+			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "invalid jwt signature"})
+		} else if errors.Is(err, jwt.ErrTokenExpired) {
+			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "jwt expired"})
 		}
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Invalid token"})
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "invalid jwt"})
 	}
 
 	if claims, ok := token.Claims.(*CustomClaims); ok && token.Valid {
 
 		c.Locals("sub", claims.Sub, "role", claims.Role)
-		return c.Next()
+		if claims, ok := token.Claims.(*CustomClaims); ok && token.Valid {
+			c.Locals("sub", claims.Sub)
+			c.Locals("role", claims.Role)
+			return c.Next()
+		}
 	}
 
 	return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Invalid token claims"})

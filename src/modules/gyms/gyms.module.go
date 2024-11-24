@@ -2,6 +2,8 @@ package gyms
 
 import (
 	"api-gym-on-go/models"
+	"api-gym-on-go/src/config/errors"
+	"api-gym-on-go/src/config/handlers"
 	"api-gym-on-go/src/config/middleware"
 	"api-gym-on-go/src/modules/gyms/repository"
 	"api-gym-on-go/src/modules/gyms/services"
@@ -22,12 +24,12 @@ func Register(app *fiber.App, db *gorm.DB) {
 		var gym models.Gym
 
 		if err := c.BodyParser(&gym); err != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid request body"})
+			return handlers.HandleHTTPError(c, err)
 		}
 
 		err := gymCreateService.CreateGym(&gym)
 		if err != nil {
-			return c.Status(fiber.ErrBadRequest.Code).JSON(fiber.Map{"error": err.Error()})
+			return handlers.HandleHTTPError(c, err)
 		}
 
 		return c.JSON(gym)
@@ -37,18 +39,24 @@ func Register(app *fiber.App, db *gorm.DB) {
 		latitudeStr := c.Query("latitude")
 		latitude, err := strconv.ParseFloat(latitudeStr, 64)
 		if err != nil || math.Abs(latitude) > 90 {
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid latitude"})
+			return handlers.HandleHTTPError(c, &errors.CustomError{
+				Message: "Invalid latitude",
+				Code:    fiber.StatusBadRequest,
+			})
 		}
 
 		longitudeStr := c.Query("longitude")
 		longitude, err := strconv.ParseFloat(longitudeStr, 64)
 		if err != nil || math.Abs(longitude) > 180 {
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid longitude"})
+			return handlers.HandleHTTPError(c, &errors.CustomError{
+				Message: "Invalid longitude",
+				Code:    fiber.StatusBadRequest,
+			})
 		}
 
 		gyms, err := gymNearbyService.GetGymsNearby(latitude, longitude)
 		if err != nil {
-			return c.Status(fiber.ErrBadRequest.Code).JSON(fiber.Map{"error": err.Error()})
+			return handlers.HandleHTTPError(c, err)
 		}
 
 		return c.JSON(gyms)
@@ -59,7 +67,7 @@ func Register(app *fiber.App, db *gorm.DB) {
 
 		gyms, err := gymSearchService.SearchGyms(query)
 		if err != nil {
-			return c.Status(fiber.ErrBadRequest.Code).JSON(fiber.Map{"error": err.Error()})
+			return handlers.HandleHTTPError(c, err)
 		}
 
 		return c.JSON(gyms)

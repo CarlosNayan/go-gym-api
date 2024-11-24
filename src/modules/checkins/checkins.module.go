@@ -2,6 +2,8 @@ package checkins
 
 import (
 	"api-gym-on-go/models"
+	"api-gym-on-go/src/config/errors"
+	"api-gym-on-go/src/config/handlers"
 	"api-gym-on-go/src/config/middleware"
 	"api-gym-on-go/src/modules/checkins/repository"
 	"api-gym-on-go/src/modules/checkins/services"
@@ -21,34 +23,47 @@ func Register(app *fiber.App, db *gorm.DB) {
 	app.Post("/checkin/create", middleware.ValidateJWT, func(c *fiber.Ctx) error {
 		var checkin models.Checkin
 		if err := c.BodyParser(&checkin); err != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid request body"})
+			return handlers.HandleHTTPError(c, err)
 		}
 
-		err := checkinCreateService.CreateCheckin(&checkin)
+		IDUser := c.Locals("sub").(string)
+
+		err := checkinCreateService.CreateCheckin(IDUser, &checkin)
 		if err != nil {
-			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": err.Error()})
+			return handlers.HandleHTTPError(c, err)
 		}
 
-		return c.JSON(checkin)
+		checkinResponse := models.Checkin{
+			ID:          checkin.ID,
+			CreatedAt:   checkin.CreatedAt,
+			ValidatedAt: checkin.ValidatedAt,
+			IDUser:      checkin.IDUser,
+			IDGym:       checkin.IDGym,
+		}
+
+		return c.JSON(checkinResponse)
 	})
 
-	app.Get("/checkin/validate/:id_checkin", middleware.ValidateJWT, func(c *fiber.Ctx) error {
-		id_checkin := c.Params("id_checkin")
+	app.Put("/checkin/validate/:id_checkin",
+		middleware.ValidateJWT,
+		middleware.VerifyUserRole("ADMIN"),
+		func(c *fiber.Ctx) error {
+			id_checkin := c.Params("id_checkin")
 
-		checkin, err := checkinValidateService.ValidateCheckin(id_checkin)
-		if err != nil {
-			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": err.Error()})
-		}
+			checkin, err := checkinValidateService.ValidateCheckin(id_checkin)
+			if err != nil {
+				return handlers.HandleHTTPError(c, err)
+			}
 
-		return c.JSON(checkin)
-	})
-	
+			return c.JSON(checkin)
+		})
+
 	app.Get("/checkin/history/:id_user", middleware.ValidateJWT, func(c *fiber.Ctx) error {
 		id_user := c.Params("id_user")
 
 		count, err := checkinCountHistoryService.CountCheckinHistory(id_user)
 		if err != nil {
-			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": err.Error()})
+			return handlers.HandleHTTPError(c, err)
 		}
 
 		return c.JSON(count)
@@ -58,13 +73,16 @@ func Register(app *fiber.App, db *gorm.DB) {
 		id_user := c.Params("id_user")
 		page, err := strconv.Atoi(c.Query("page"))
 		if err != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid page number"})
+			return handlers.HandleHTTPError(c, &errors.CustomError{
+				Message: "Invalid page",
+				Code:    400,
+			})
 		}
 
 		checkins, err := checkinListHistoryService.ListCheckinHistory(id_user, page)
 
 		if err != nil {
-			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": err.Error()})
+			return handlers.HandleHTTPError(c, err)
 		}
 
 		return c.JSON(checkins)

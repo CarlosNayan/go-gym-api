@@ -1,8 +1,8 @@
 package services
 
 import (
+	"api-gym-on-go/src/config/errors"
 	"api-gym-on-go/src/modules/users/interfaces"
-	"errors"
 )
 
 type UsersMeService struct {
@@ -19,7 +19,7 @@ func (ums *UsersMeService) GetUserByID(id string) (map[string]string, error) {
 		return nil, err
 	}
 	if user == nil {
-		return nil, errors.New("user not found")
+		return nil, &errors.ResourceNotFoundError{}
 	}
 
 	userData := map[string]string{

@@ -13,6 +13,7 @@ func NewCheckinCreateService(checkinsRepository *repository.CheckinRepository) *
 	return &CheckinCreate{checkinsRepository: checkinsRepository}
 }
 
-func (cc *CheckinCreate) CreateCheckin(checkin *models.Checkin) error {
+func (cc *CheckinCreate) CreateCheckin(IDUser string, checkin *models.Checkin) error {
+	checkin.IDUser = IDUser
 	return cc.checkinsRepository.CreateCheckin(checkin)
 }

@@ -9,11 +9,10 @@
 
 ## Tests
 
-- go test ./test
+- go test $(find ./tests -name '*_test.go' -exec dirname {} \; | sort -u)
 - go test -cover ./test
 - go test -coverprofile=coverage.out ./test
 - go tool cover -html=coverage.out
-
 
 ## Docker
 

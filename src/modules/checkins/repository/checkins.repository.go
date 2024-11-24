@@ -73,7 +73,11 @@ func (cr *CheckinRepository) UpdateCheckin(id_checkin string) (*models.Checkin, 
 		First(&updatedCheckin, "id_checkin = ?", id_checkin).Error
 
 	if err != nil {
-		return nil, err
+		if err == gorm.ErrRecordNotFound {
+			return nil, nil
+		} else {
+			return nil, err
+		}
 	}
 
 	return &updatedCheckin, nil
@@ -83,6 +87,13 @@ func (cr *CheckinRepository) CountByUserId(id_user string) (int64, error) {
 	var count int64
 	err := cr.DB.Model(&models.Checkin{}).
 		Where("id_user = ?", id_user).Count(&count).Error
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return 0, nil
+		} else {
+			return 0, err
+		}
+	}
 	return count, err
 }
 
@@ -91,5 +102,12 @@ func (cr *CheckinRepository) ListAllCheckinsHistoryOfUser(id_user string, page i
 	err := cr.DB.Where("id_user = ?", id_user).Limit(10).
 		Offset((page - 1) * 10).
 		Find(&checkins).Error
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, nil
+		} else {
+			return nil, err
+		}
+	}
 	return checkins, err
 }

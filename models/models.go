@@ -44,8 +44,8 @@ type Checkin struct {
 	IDUser      string     `gorm:"column:id_user;type:uuid;not null" json:"id_user"`
 	IDGym       string     `gorm:"column:id_gym;type:uuid;not null" json:"id_gym"`
 
-	User User `gorm:"foreignKey:IDUser;constraint:OnDelete:CASCADE;referencedKey:id_user"`
-	Gym  Gym  `gorm:"foreignKey:IDGym;constraint:OnDelete:CASCADE;referencedKey:id_gym"`
+	User User `gorm:"foreignKey:IDUser;constraint:OnDelete:CASCADE;referencedKey:id_user" json:"-"`
+	Gym  Gym  `gorm:"foreignKey:IDGym;constraint:OnDelete:CASCADE;referencedKey:id_gym" json:"-"`
 }
 
 func SetupDatabase(database string) *gorm.DB {
