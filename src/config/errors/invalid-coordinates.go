@@ -3,7 +3,7 @@ package errors
 type InvalidCoordinatesError struct{}
 
 func (e *InvalidCoordinatesError) Error() string {
-	return "Resource not found."
+	return "Invalid coordinates."
 }
 
 func (e *InvalidCoordinatesError) StatusCode() int {

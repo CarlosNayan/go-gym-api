@@ -20,7 +20,7 @@ func (cr *CheckinRepository) CreateCheckin(checkin *models.Checkin) error {
 	return cr.DB.Create(checkin).Error
 }
 
-func (cr *CheckinRepository) FindCheckinByIdOnDate(id_checkin string, date string) (*models.Checkin, error) {
+func (cr *CheckinRepository) FindCheckinByIdOnDate(id_user string) (*models.Checkin, error) {
 	var checkin models.Checkin
 
 	now, err := utils.NewMoment()
@@ -32,7 +32,7 @@ func (cr *CheckinRepository) FindCheckinByIdOnDate(id_checkin string, date strin
 	endOfDay := now.EndOf("day").Format()
 
 	result := cr.DB.
-		Where("id_checkin = ? AND created_at BETWEEN ? AND ?", id_checkin, date, startOfDay, endOfDay).
+		Where("id_user = ? AND created_at BETWEEN ? AND ?", id_user, startOfDay, endOfDay).
 		First(&checkin)
 
 	if result.Error != nil {
@@ -110,4 +110,17 @@ func (cr *CheckinRepository) ListAllCheckinsHistoryOfUser(id_user string, page i
 		}
 	}
 	return checkins, err
+}
+
+func (cr *CheckinRepository) FindGymByID(id_gym string) (*models.Gym, error) {
+	var gym models.Gym
+	err := cr.DB.Where("id_gym = ?", id_gym).First(&gym).Error
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, nil
+		} else {
+			return nil, err
+		}
+	}
+	return &gym, nil
 }
