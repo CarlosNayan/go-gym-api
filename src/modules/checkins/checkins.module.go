@@ -55,16 +55,17 @@ func Register(app *fiber.App, db *gorm.DB) {
 		middleware.ValidateJWT,
 		middleware.VerifyUserRole("ADMIN"),
 		func(c *fiber.Ctx) error {
-			var IdCheckin string
+			var params schemas.CheckinValidateParams
 
-			if err := c.ParamsParser(&IdCheckin); err != nil {
+			if err := c.ParamsParser(&params); err != nil {
+				fmt.Println(err)
 				return handlers.HandleHTTPError(c, &errors.CustomError{
 					Message: "Invalid request params",
 					Code:    400,
 				})
 			}
 
-			checkin, err := checkinValidateService.ValidateCheckin(IdCheckin)
+			checkin, err := checkinValidateService.ValidateCheckin(params.IDCheckin)
 			if err != nil {
 				return handlers.HandleHTTPError(c, err)
 			}
@@ -72,16 +73,10 @@ func Register(app *fiber.App, db *gorm.DB) {
 			return c.JSON(checkin)
 		})
 
-	app.Get("/checkin/history/:id_user", middleware.ValidateJWT, func(c *fiber.Ctx) error {
-		var IDUser string
-		if err := c.ParamsParser(&IDUser); err != nil {
-			return handlers.HandleHTTPError(c, &errors.CustomError{
-				Message: "Invalid request params",
-				Code:    400,
-			})
-		}
+	app.Get("/checkin/history/count", middleware.ValidateJWT, func(c *fiber.Ctx) error {
+		id_user := c.Locals("sub").(string)
 
-		count, err := checkinCountHistoryService.CountCheckinHistory(IDUser)
+		count, err := checkinCountHistoryService.CountCheckinHistory(id_user)
 		if err != nil {
 			return handlers.HandleHTTPError(c, err)
 		}
@@ -89,25 +84,19 @@ func Register(app *fiber.App, db *gorm.DB) {
 		return c.JSON(count)
 	})
 
-	app.Get("/checkin/history/:id_user", middleware.ValidateJWT, func(c *fiber.Ctx) error {
-		var id_user string
-		var page string
+	app.Get("/checkin/history", middleware.ValidateJWT, func(c *fiber.Ctx) error {
+		id_user := c.Locals("sub").(string)
+		var params schemas.CheckinValidateQuery
 
-		if err := c.ParamsParser(&id_user); err != nil {
-			return handlers.HandleHTTPError(c, &errors.CustomError{
-				Message: "Invalid request params",
-				Code:    400,
-			})
-		}
-
-		if err := c.QueryParser(&page); err != nil {
+		if err := c.QueryParser(&params); err != nil {
 			return handlers.HandleHTTPError(c, &errors.CustomError{
 				Message: "Invalid page",
 				Code:    400,
 			})
 		}
 
-		page_num, err := strconv.Atoi(page)
+		page_num, err := strconv.Atoi(params.Page)
+
 		if err != nil {
 			return handlers.HandleHTTPError(c, &errors.CustomError{
 				Message: "Invalid page number",

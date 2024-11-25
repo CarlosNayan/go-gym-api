@@ -11,6 +11,8 @@ import (
 	"api-gym-on-go/src/modules/gyms"
 	"api-gym-on-go/src/modules/users"
 
+	"github.com/gofiber/fiber/v2/middleware/logger"
+
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -24,6 +26,7 @@ func main() {
 
 	// Startup services
 	app := fiber.New()
+	app.Use(logger.New())
 	db := models.SetupDatabase(envConfig.DatabaseURL)
 
 	// Register modules
