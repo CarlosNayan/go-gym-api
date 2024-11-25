@@ -25,7 +25,7 @@ func Register(app *fiber.App, db *gorm.DB) {
 			return handlers.HandleHTTPError(c, err)
 		}
 
-		return c.JSON(user)
+		return c.Status(201).JSON(user)
 	})
 
 	app.Post("/users/create", func(c *fiber.Ctx) error {

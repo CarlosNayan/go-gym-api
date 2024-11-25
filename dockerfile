@@ -4,7 +4,7 @@ WORKDIR /app
 
 COPY . .
 
-RUN GOOS=linux GOARCH=amd64 go build -o dist .
+RUN GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o dist .
 
 FROM scratch
 
