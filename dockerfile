@@ -4,6 +4,10 @@ WORKDIR /app
 
 COPY . .
 
+RUN rm -rf ./tests
+
+RUN go mod tidy
+
 RUN GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o dist .
 
 FROM scratch
