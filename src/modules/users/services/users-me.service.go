@@ -23,10 +23,10 @@ func (ums *UsersMeService) GetUserByID(id string) (map[string]string, error) {
 	}
 
 	userData := map[string]string{
-		"id":       user.ID,
-		"userName": user.UserName,
-		"email":    user.Email,
-		"role":     string(user.Role),
+		"id_user":   user.ID,
+		"user_name": user.UserName,
+		"email":     user.Email,
+		"role":      string(user.Role),
 	}
 
 	return userData, nil

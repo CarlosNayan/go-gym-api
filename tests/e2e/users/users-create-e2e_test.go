@@ -67,6 +67,6 @@ func TestUserRegisterE2E(t *testing.T) {
 
 		resp, _ := app.Test(req, -1)
 
-		assert.Equalf(t, 200, resp.StatusCode, "get HTTP status 200")
+		assert.Equalf(t, 201, resp.StatusCode, "get HTTP status 201")
 	})
 }

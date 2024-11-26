@@ -1,4 +1,4 @@
-package users_create_service_test
+package users_service_test
 
 import (
 	"testing"
@@ -18,14 +18,14 @@ var (
 	userService             *services.UsersCreateService
 )
 
-func setup() {
+func setupCreateService() {
 	usersInMemoryRepository = &repository.InMemoryUserRepository{}
 	userService = services.NewUsersCreateService(usersInMemoryRepository)
 }
 
-func TestUserRegister(t *testing.T) {
+func TestUserCreate(t *testing.T) {
 	t.Run("should be able to register", func(t *testing.T) {
-		setup()
+		setupCreateService()
 
 		user, err := userService.CreateUser(&models.User{
 			UserName:     "Jhon Doe",
@@ -38,7 +38,7 @@ func TestUserRegister(t *testing.T) {
 	})
 
 	t.Run("should hash user password upon registration", func(t *testing.T) {
-		setup()
+		setupCreateService()
 
 		user, err := userService.CreateUser(&models.User{
 			UserName:     "Jhon Doe",
@@ -54,7 +54,7 @@ func TestUserRegister(t *testing.T) {
 	})
 
 	t.Run("should not be able to register with same email twice", func(t *testing.T) {
-		setup()
+		setupCreateService()
 
 		email := "email@email.com"
 

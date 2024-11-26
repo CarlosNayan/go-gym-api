@@ -14,9 +14,18 @@ type InMemoryUserRepository struct {
 	items []models.User
 }
 
-// Novo repositório em memória
 func NewInMemoryUserRepository() *InMemoryUserRepository {
-	return &InMemoryUserRepository{}
+	return &InMemoryUserRepository{
+		items: []models.User{
+			{
+				ID:           "0ebd4f88-d712-4b0f-9278-41d595c690ad",
+				UserName:     "Default User",
+				Email:        "default@example.com",
+				PasswordHash: "hashed_password",
+				CreatedAt:    time.Now(),
+			},
+		},
+	}
 }
 
 var _ interfaces.UserRepository = (*InMemoryUserRepository)(nil)
