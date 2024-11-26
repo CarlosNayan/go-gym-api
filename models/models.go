@@ -62,5 +62,15 @@ func SetupDatabase(database string) *gorm.DB {
 		os.Exit(1)
 	}
 
+	sqlDB, err := db.DB()
+	if err != nil {
+		log.Fatal(err)
+		os.Exit(1)
+	}
+
+	sqlDB.SetMaxOpenConns(20)
+	sqlDB.SetMaxIdleConns(10)
+	sqlDB.SetConnMaxLifetime(time.Hour)
+
 	return db
 }
