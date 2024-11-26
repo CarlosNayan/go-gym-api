@@ -4,6 +4,7 @@ import (
 	"api-gym-on-go/models"
 	"api-gym-on-go/src/config/utils"
 	"api-gym-on-go/src/modules/gyms/interfaces"
+	"strings"
 
 	"github.com/google/uuid"
 )
@@ -20,8 +21,8 @@ func NewInMemoryGymRepository() *InMemoryGymsRepository {
 				GymName:     "Default Gym",
 				Description: nil,
 				Phone:       nil,
-				Latitude:    0,
-				Longitude:   0,
+				Latitude:    1.234567,
+				Longitude:   1.234567,
 				Checkins:    nil,
 			},
 		},
@@ -48,7 +49,7 @@ func (i *InMemoryGymsRepository) SearchGyms(query string) ([]models.Gym, error) 
 	var result []models.Gym
 
 	for _, gym := range i.items {
-		if gym.GymName == query {
+		if strings.Contains(gym.GymName, query) {
 			result = append(result, gym)
 		}
 	}

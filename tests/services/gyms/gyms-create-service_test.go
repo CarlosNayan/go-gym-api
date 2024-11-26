@@ -19,8 +19,8 @@ func setupCreateService() {
 	gymsCreateService = services.NewGymsCreateService(gymsCreateInMemoryRepository)
 }
 
-func TestUserCreate(t *testing.T) {
-	t.Run("should be able to register", func(t *testing.T) {
+func TestGymCreate(t *testing.T) {
+	t.Run("should be able to register a gym", func(t *testing.T) {
 		setupCreateService()
 
 		description := "Test description"
