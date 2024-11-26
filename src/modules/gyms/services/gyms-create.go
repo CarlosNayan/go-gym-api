@@ -2,14 +2,14 @@ package services
 
 import (
 	"api-gym-on-go/models"
-	"api-gym-on-go/src/modules/gyms/repository"
+	"api-gym-on-go/src/modules/gyms/interfaces"
 )
 
 type GymsCreateService struct {
-	GymRepository *repository.GymsRepository
+	GymRepository interfaces.GymsRepository
 }
 
-func NewGymsCreateService(gymsRepo *repository.GymsRepository) *GymsCreateService {
+func NewGymsCreateService(gymsRepo interfaces.GymsRepository) *GymsCreateService {
 	return &GymsCreateService{GymRepository: gymsRepo}
 }
 
