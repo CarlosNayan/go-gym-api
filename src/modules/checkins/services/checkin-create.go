@@ -4,15 +4,15 @@ import (
 	"api-gym-on-go/models"
 	"api-gym-on-go/src/config/errors"
 	"api-gym-on-go/src/config/utils"
-	"api-gym-on-go/src/modules/checkins/repository"
+	"api-gym-on-go/src/modules/checkins/interfaces"
 	"api-gym-on-go/src/modules/checkins/schemas"
 )
 
 type CheckinCreate struct {
-	checkinsRepository *repository.CheckinRepository
+	checkinsRepository interfaces.CheckinsRepository
 }
 
-func NewCheckinCreateService(checkinsRepository *repository.CheckinRepository) *CheckinCreate {
+func NewCheckinCreateService(checkinsRepository interfaces.CheckinsRepository) *CheckinCreate {
 	return &CheckinCreate{checkinsRepository: checkinsRepository}
 }
 

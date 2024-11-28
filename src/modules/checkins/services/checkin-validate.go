@@ -4,14 +4,14 @@ import (
 	"api-gym-on-go/models"
 	"api-gym-on-go/src/config/errors"
 	"api-gym-on-go/src/config/utils"
-	"api-gym-on-go/src/modules/checkins/repository"
+	"api-gym-on-go/src/modules/checkins/interfaces"
 )
 
 type CheckinValidate struct {
-	CheckinRepository *repository.CheckinRepository
+	CheckinRepository interfaces.CheckinsRepository
 }
 
-func NewCheckinValidateService(checkinRepository *repository.CheckinRepository) *CheckinValidate {
+func NewCheckinValidateService(checkinRepository interfaces.CheckinsRepository) *CheckinValidate {
 	return &CheckinValidate{CheckinRepository: checkinRepository}
 }
 

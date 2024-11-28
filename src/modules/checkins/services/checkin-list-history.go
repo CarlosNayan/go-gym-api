@@ -2,14 +2,14 @@ package services
 
 import (
 	"api-gym-on-go/models"
-	"api-gym-on-go/src/modules/checkins/repository"
+	"api-gym-on-go/src/modules/checkins/interfaces"
 )
 
 type CheckinListHistory struct {
-	CheckinRepository *repository.CheckinRepository
+	CheckinRepository interfaces.CheckinsRepository
 }
 
-func NewCheckinListHistory(checkinRepository *repository.CheckinRepository) *CheckinListHistory {
+func NewCheckinListHistory(checkinRepository interfaces.CheckinsRepository) *CheckinListHistory {
 	return &CheckinListHistory{CheckinRepository: checkinRepository}
 }
 
