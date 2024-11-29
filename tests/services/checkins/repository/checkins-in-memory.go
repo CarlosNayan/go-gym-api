@@ -6,8 +6,6 @@ import (
 	"api-gym-on-go/src/modules/checkins/interfaces"
 	"log"
 	"time"
-
-	"github.com/google/uuid"
 )
 
 type InMemoryCheckinsRepository struct {
@@ -19,9 +17,9 @@ func NewInMemoryCheckinsRepository() *InMemoryCheckinsRepository {
 	return &InMemoryCheckinsRepository{
 		checkins: []models.Checkin{
 			{
-				ID:          uuid.New().String(),
-				IDUser:      uuid.New().String(),
-				IDGym:       uuid.New().String(),
+				ID:          "0ebd4f88-d712-4b0f-9278-41d595c690ad",
+				IDUser:      "1e2d4f88-d712-4b0f-9278-41d595c690ad",
+				IDGym:       "2e2d4f88-d712-4b0f-9278-41d595c690ad",
 				CreatedAt:   time.Now(),
 				ValidatedAt: nil,
 			},

@@ -23,7 +23,7 @@ func (cc *CheckinCreate) CreateCheckin(body *schemas.CheckinCreateBody) error {
 	checkinAlrightExistsToday, err := cc.checkinsRepository.FindCheckinByIdOnDate(body.IDUser)
 	if err != nil {
 		return err
-	} else if checkinAlrightExistsToday != nil {
+	} else if checkinAlrightExistsToday.IDUser != "" {
 		return &errors.MaxNumberOfCheckinsError{}
 	}
 
