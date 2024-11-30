@@ -18,11 +18,7 @@ import (
 
 func main() {
 	// Load environment variables
-	envConfig, err := env.LoadEnv()
-	if err != nil {
-		fmt.Printf("Erro ao carregar variáveis de ambiente: %v\n", err)
-		os.Exit(1)
-	}
+	envConfig := env.LoadEnv()
 
 	// Startup services
 	app := fiber.New()
@@ -41,7 +37,7 @@ func main() {
 		port = envConfig.Port
 	}
 
-	err = app.Listen(fmt.Sprintf(":%d", port))
+	err := app.Listen(fmt.Sprintf(":%d", port))
 	if err != nil {
 		fmt.Printf("Erro ao iniciar o servidor: %v\n", err)
 		os.Exit(1)

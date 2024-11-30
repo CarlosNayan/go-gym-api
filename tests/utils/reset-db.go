@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
-	"os"
 
 	_ "github.com/lib/pq"
 )
@@ -23,13 +22,11 @@ func ConnectDB() *sql.DB {
 		dbHost, dbPort, dbUser, dbPassword, dbName)
 	db, err := sql.Open("postgres", connStr)
 	if err != nil {
-		log.Fatal(fmt.Errorf("falha ao conectar ao banco de dados: %w", err))
-		os.Exit(1)
+		panic(fmt.Sprintf("falha ao conectar ao banco de dados: %w", err))
 	}
 
 	if err := db.Ping(); err != nil {
-		log.Fatal(fmt.Errorf("falha ao pingar o banco de dados: %w", err))
-		os.Exit(1)
+		panic(fmt.Sprintf("falha ao pingar o banco de dados: %w", err))
 	}
 
 	return db
@@ -45,9 +42,7 @@ func ResetDb() {
 	for _, table := range tables {
 		query := fmt.Sprintf("TRUNCATE TABLE %s RESTART IDENTITY CASCADE;", table)
 		if _, err := db.Exec(query); err != nil {
-			log.Printf("falha ao limpar a tabela %s: %v", table, err)
-			log.Fatal(fmt.Errorf("falha ao pingar o banco de dados: %w", err))
-			os.Exit(1)
+			panic(fmt.Sprintf("falha ao limpar a tabela %s: %v", table, err))
 		}
 	}
 

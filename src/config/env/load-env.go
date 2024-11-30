@@ -1,7 +1,6 @@
 package env
 
 import (
-	"errors"
 	"fmt"
 	"os"
 	"strconv"
@@ -15,16 +14,16 @@ type EnvConfig struct {
 	Port        int
 }
 
-func LoadEnv() (*EnvConfig, error) {
+func LoadEnv() *EnvConfig {
 	if _, err := os.Stat(".env"); err == nil {
 		if err := loadDotEnv(".env"); err != nil {
-			return nil, fmt.Errorf("erro ao carregar .env: %w", err)
+			panic(fmt.Sprintf("erro ao carregar .env: %w", err))
 		}
 	}
 
 	port, err := strconv.Atoi(getEnv("PORT", "3333"))
 	if err != nil {
-		return nil, errors.New("PORT deve ser um número válido")
+		panic(fmt.Sprintf("PORT deve ser um número válido: %v", err))
 	}
 
 	env := &EnvConfig{
@@ -35,10 +34,10 @@ func LoadEnv() (*EnvConfig, error) {
 	}
 
 	if err := validateEnv(env); err != nil {
-		return nil, err
+		panic(fmt.Sprintf("erro ao carregar variáveis de ambiente: %v", err))
 	}
 
-	return env, nil
+	return env
 }
 
 func getEnv(key, defaultValue string) string {
@@ -50,13 +49,13 @@ func getEnv(key, defaultValue string) string {
 
 func validateEnv(config *EnvConfig) error {
 	if config.NodeEnv != "dev" && config.NodeEnv != "test" && config.NodeEnv != "production" {
-		return errors.New("NODE_ENV deve ser 'dev', 'test' ou 'production'")
+		panic("NODE_ENV deve ser 'dev', 'test' ou 'production'")
 	}
 	if config.DatabaseURL == "" {
-		return errors.New("DATABASE_URL deve ser uma URL válida")
+		panic("DATABASE_URL deve ser uma URL válida")
 	}
 	if config.JWTSecret == "" {
-		return errors.New("JWT_SECRET deve ser uma string")
+		panic("JWT_SECRET deve ser uma string")
 	}
 	return nil
 }
@@ -88,7 +87,7 @@ func loadDotEnv(filepath string) error {
 
 		parts := strings.SplitN(line, "=", 2)
 		if len(parts) != 2 {
-			return fmt.Errorf("linha inválida no .env: %s", line)
+			panic(fmt.Sprintf("linha inválida no .env: %s", line))
 		}
 
 		key := strings.TrimSpace(parts[0])
