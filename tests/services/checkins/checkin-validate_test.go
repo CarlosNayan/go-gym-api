@@ -3,7 +3,6 @@ package checkins_test
 import (
 	"api-gym-on-go/src/modules/checkins/services"
 	"api-gym-on-go/tests/services/checkins/repository"
-	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -24,8 +23,6 @@ func TestCheckinValidate(t *testing.T) {
 		setupValidateService()
 
 		checkins, err := checkinsValidateService.ValidateCheckin("0ebd4f88-d712-4b0f-9278-41d595c690ad")
-
-		fmt.Println(checkins.ValidatedAt)
 
 		require.NotNil(t, checkins.ValidatedAt, "ValidatedAt should not be nil")
 		require.NoError(t, err)

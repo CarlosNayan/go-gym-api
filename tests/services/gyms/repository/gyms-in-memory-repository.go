@@ -23,7 +23,6 @@ func NewInMemoryGymRepository() *InMemoryGymsRepository {
 				Phone:       nil,
 				Latitude:    1.234567,
 				Longitude:   1.234567,
-				Checkins:    nil,
 			},
 		},
 	}

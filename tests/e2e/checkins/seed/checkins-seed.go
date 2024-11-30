@@ -12,7 +12,14 @@ func SeedCheckins(preCreateCheckin bool) {
 		Latitude:  1.23456,
 		Longitude: 1.23456,
 	}
-	err := db.Create(&gym).Error
+	query := `
+		INSERT INTO gyms
+		(id, gym_name, latitude, longitude)
+		VALUES
+		($1, $2, $3, $4)
+	`
+
+	err := db.QueryRow(query, gym.ID, gym.GymName, gym.Latitude, gym.Longitude)
 	if err != nil {
 		panic(err)
 	}
@@ -22,7 +29,14 @@ func SeedCheckins(preCreateCheckin bool) {
 			IDUser: "1e2d4f88-d712-4b0f-9278-41d595c690ad",
 			IDGym:  "2e2d4f88-d712-4b0f-9278-41d595c690ad",
 		}
-		err = db.Create(&checkin).Error
+
+		query = `
+			INSERT INTO checkins
+			(id, id_user, id_gym, created_at)
+			VALUES
+			($1, $2, $3, NOW())
+		`
+		err := db.QueryRow(query, checkin.ID, checkin.IDUser, checkin.IDGym)
 		if err != nil {
 			panic(err)
 		}

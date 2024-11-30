@@ -7,14 +7,14 @@ import (
 	"api-gym-on-go/src/modules/checkins/repository"
 	"api-gym-on-go/src/modules/checkins/schemas"
 	"api-gym-on-go/src/modules/checkins/services"
+	"database/sql"
 	"fmt"
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"
-	"gorm.io/gorm"
 )
 
-func Register(app *fiber.App, db *gorm.DB) {
+func Register(app *fiber.App, db *sql.DB) {
 	checkinRepo := repository.NewCheckinRepository(db)
 	checkinValidateService := services.NewCheckinValidateService(checkinRepo)
 	checkinCountHistoryService := services.NewCheckinCountHistory(checkinRepo)
@@ -58,7 +58,6 @@ func Register(app *fiber.App, db *gorm.DB) {
 			var params schemas.CheckinValidateParams
 
 			if err := c.ParamsParser(&params); err != nil {
-				fmt.Println(err)
 				return handlers.HandleHTTPError(c, &errors.CustomError{
 					Message: "Invalid request params",
 					Code:    400,

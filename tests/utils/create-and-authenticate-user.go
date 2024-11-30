@@ -34,7 +34,17 @@ func CreateAndAuthenticateUser(role string) string {
 		PasswordHash: "$2a$10$Dt3LAbYqOJiBPOW5VG/uXOL9Jk8DvqLBz16znHw5WLZiYZQCCED/.",
 		Role:         models.Role(role),
 	}
-	db.Create(&user)
+	query := `
+		INSERT INTO users
+		(id_user, user_name, email, password_hash, role)
+		VALUES
+		($1, $2, $3, $4, $5)
+	`
+
+	_, err := db.Exec(query, user.ID, user.UserName, user.Email, user.PasswordHash, user.Role)
+	if err != nil {
+		panic(fmt.Sprintf("Erro ao criar usuário: %v", err))
+	}
 
 	payload := map[string]interface{}{
 		"email":    "test@test.com",

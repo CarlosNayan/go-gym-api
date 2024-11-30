@@ -1,58 +1,88 @@
 package repository
 
 import (
-	"gorm.io/gorm"
+	"database/sql"
+	"fmt"
 
 	"api-gym-on-go/models"
 )
 
 type UserRepository struct {
-	DB *gorm.DB
+	DB *sql.DB
 }
 
-func NewUserRepository(db *gorm.DB) *UserRepository {
+func NewUserRepository(db *sql.DB) *UserRepository {
 	return &UserRepository{DB: db}
 }
 
 func (r *UserRepository) GetProfileById(id string) (*models.User, error) {
 	var user models.User
 
-	result := r.DB.Where("id_user = ?", id).First(&user)
+	query := `
+		SELECT id_user, user_name, email, role, created_at
+		FROM users
+		WHERE id_user = ?
+		LIMIT 1
+	`
 
-	if result.Error != nil {
-		if result.Error == gorm.ErrRecordNotFound {
+	rows, err := r.DB.Query(query, id)
+	if err != nil {
+		if err == sql.ErrNoRows {
 			return nil, nil
 		}
-		return nil, result.Error
+		return nil, err
+	}
+
+	if rows.Next() {
+		err = rows.Scan(&user.ID, &user.UserName, &user.Email, &user.Role, &user.CreatedAt)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return &user, nil
 }
 
-func (r *UserRepository) UserEmailVerify(email string) (string, error) {
+func (r *UserRepository) UserEmailVerify(email string) (*string, error) {
 	var user models.User
 
-	result := r.DB.Where("email = ?", email).First(&user)
+	query := `
+		SELECT email
+		FROM users
+		WHERE email = $1
+	`
 
-	if result.Error != nil {
-		if result.Error == gorm.ErrRecordNotFound {
-			return "", nil
+	row := r.DB.QueryRow(query, email)
+	err := row.Scan(&user.Email)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, nil
 		}
-		return "", result.Error
+		return nil, fmt.Errorf("error fetching user: %w", err)
 	}
 
-	if user.Email == email {
-		return user.Email, nil
-	} else {
-		return "", nil
-	}
+	return &user.Email, nil
 }
 
 func (r *UserRepository) CreateUser(user *models.User) (*models.User, error) {
 	var createdUser models.User
-	result := r.DB.Create(user).First(&createdUser)
-	if result.Error != nil {
-		return nil, result.Error
+
+	query := `
+		INSERT INTO users (user_name, email, password_hash, role, created_at)
+		VALUES ($1, $2, $3, $4, $5)
+		RETURNING id_user, user_name, email, role, created_at
+	`
+
+	rows, err := r.DB.Query(query, user.UserName, user.Email, user.PasswordHash, user.Role, user.CreatedAt)
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+
+	rows.Next()
+	err = rows.Scan(&createdUser.ID, &createdUser.UserName, &createdUser.Email, &createdUser.Role, &createdUser.CreatedAt)
+	if err != nil {
+		return nil, err
 	}
 
 	return &createdUser, nil

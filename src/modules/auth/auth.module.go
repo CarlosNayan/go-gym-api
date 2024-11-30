@@ -3,9 +3,9 @@ package auth
 import (
 	"api-gym-on-go/src/modules/auth/repository"
 	"api-gym-on-go/src/modules/auth/services"
+	"database/sql"
 
 	"github.com/gofiber/fiber/v2"
-	"gorm.io/gorm"
 )
 
 type AuthRequest struct {
@@ -13,7 +13,7 @@ type AuthRequest struct {
 	Password string `json:"password"`
 }
 
-func Register(app *fiber.App, db *gorm.DB) {
+func Register(app *fiber.App, db *sql.DB) {
 	authService := repository.NewAuthRepository(db)
 	userService := services.NewAuthService(authService)
 

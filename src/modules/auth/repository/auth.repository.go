@@ -2,28 +2,33 @@ package repository
 
 import (
 	"api-gym-on-go/models"
-
-	"gorm.io/gorm"
+	"database/sql"
 )
 
 type UserRepository struct {
-	DB *gorm.DB
+	DB *sql.DB
 }
 
-func NewAuthRepository(db *gorm.DB) *UserRepository {
+func NewAuthRepository(db *sql.DB) *UserRepository {
 	return &UserRepository{DB: db}
 }
 
 func (r *UserRepository) FindByEmail(email string) (*models.User, error) {
 	var user models.User
 
-	result := r.DB.Where("email = ?", email).First(&user)
+	query := `
+		SELECT id_user, user_name, email, password_hash, role, created_at
+		FROM users
+		WHERE email = $1
+	`
 
-	if result.Error != nil {
-		if result.Error == gorm.ErrRecordNotFound {
+	row := r.DB.QueryRow(query, email)
+	err := row.Scan(&user.ID, &user.UserName, &user.Email, &user.PasswordHash, &user.Role, &user.CreatedAt)
+	if err != nil {
+		if err == sql.ErrNoRows {
 			return nil, nil
 		}
-		return nil, result.Error
+		return nil, err
 	}
 
 	return &user, nil

@@ -9,5 +9,16 @@ func SeedGyms() {
 		Latitude:  1.23456,
 		Longitude: 1.23456,
 	}
-	db.Create(&gym)
+
+	query := `
+		INSERT INTO gyms
+		(gym_name, latitude, longitude)
+		VALUES
+		($1, $2, $3)
+	`
+
+	err := db.QueryRow(query, gym.GymName, gym.Latitude, gym.Longitude).Scan(&gym.ID)
+	if err != nil {
+		panic(err)
+	}
 }

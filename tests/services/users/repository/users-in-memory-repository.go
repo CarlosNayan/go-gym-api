@@ -40,13 +40,13 @@ func (repo *InMemoryUserRepository) GetProfileById(id string) (*models.User, err
 	return nil, errors.New("user not found")
 }
 
-func (repo *InMemoryUserRepository) UserEmailVerify(email string) (string, error) {
+func (repo *InMemoryUserRepository) UserEmailVerify(email string) (*string, error) {
 	for _, user := range repo.items {
 		if user.Email == email {
-			return user.Email, nil
+			return &user.Email, nil
 		}
 	}
-	return "", nil
+	return nil, nil
 }
 
 // Cria um novo usuário

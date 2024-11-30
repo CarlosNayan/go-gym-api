@@ -22,11 +22,11 @@ func ConnectDB() *sql.DB {
 		dbHost, dbPort, dbUser, dbPassword, dbName)
 	db, err := sql.Open("postgres", connStr)
 	if err != nil {
-		panic(fmt.Sprintf("falha ao conectar ao banco de dados: %w", err))
+		panic(fmt.Sprintf("falha ao conectar ao banco de dados: %v", err))
 	}
 
 	if err := db.Ping(); err != nil {
-		panic(fmt.Sprintf("falha ao pingar o banco de dados: %w", err))
+		panic(fmt.Sprintf("falha ao pingar o banco de dados: %v", err))
 	}
 
 	return db
