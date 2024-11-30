@@ -15,7 +15,7 @@ const (
 	dbPort     = 5432
 	dbUser     = "root"
 	dbPassword = "admin"
-	dbName     = "api_solid"
+	dbName     = "public"
 )
 
 func ConnectDB() *sql.DB {

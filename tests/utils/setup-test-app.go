@@ -10,14 +10,36 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func SetupTestApp() *fiber.App {
+// Define os módulos disponíveis como constantes do tipo string
+type Module string
+
+const (
+	Users    Module = "users"
+	Auth     Module = "auth"
+	Gyms     Module = "gyms"
+	Checkins Module = "checkins"
+)
+
+func SetupTestApp(module Module) *fiber.App {
+	// Cria uma nova instância do Fiber
 	app := fiber.New()
-	db := models.SetupDatabase("postgresql://root:admin@127.0.0.1:5432/api_solid?sslmode=disable")
 
+	// Configura o banco de dados
+	db := models.SetupDatabase("postgresql://root:admin@127.0.0.1:5432/public?sslmode=disable")
 
-	users.Register(app, db)
-	auth.Register(app, db)
-	gyms.Register(app, db)
-	checkins.Register(app, db)
+	// Registra apenas o módulo especificado
+	switch module {
+	case Users:
+		users.Register(app, db)
+	case Auth:
+		auth.Register(app, db)
+	case Gyms:
+		gyms.Register(app, db)
+	case Checkins:
+		checkins.Register(app, db)
+	default:
+		panic("Módulo inválido: " + string(module))
+	}
+
 	return app
 }
