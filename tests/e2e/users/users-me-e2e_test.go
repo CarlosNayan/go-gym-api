@@ -1,4 +1,4 @@
-package users_create_e2e_test
+package users_e2e_test
 
 import (
 	"api-gym-on-go/tests/utils"

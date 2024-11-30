@@ -40,7 +40,7 @@ func ResetDb() {
 
 	defer db.Close()
 
-	tables := []string{"gyms", "users", "checkins"}
+	tables := []string{"users", "gyms", "checkins"}
 
 	for _, table := range tables {
 		query := fmt.Sprintf("TRUNCATE TABLE %s RESTART IDENTITY CASCADE;", table)

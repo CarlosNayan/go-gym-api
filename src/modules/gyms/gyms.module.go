@@ -32,7 +32,7 @@ func Register(app *fiber.App, db *gorm.DB) {
 			return handlers.HandleHTTPError(c, err)
 		}
 
-		return c.JSON(gym)
+		return c.Status(fiber.StatusCreated).JSON(gym)
 	})
 
 	app.Get("/gyms/nearby", func(c *fiber.Ctx) error {

@@ -1,4 +1,4 @@
-package users_e2e_test
+package gyms_e2e_test
 
 import (
 	"api-gym-on-go/tests/utils"
@@ -10,17 +10,18 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestUserRegisterE2E(t *testing.T) {
+func TestGymCreateE2E(t *testing.T) {
 	utils.ResetDb()
-	app := utils.SetupTestApp("users")
+	app := utils.SetupTestApp("gyms")
 	server := httptest.NewServer(utils.FiberToHttpHandler(app.Handler()))
 	defer server.Close()
 
 	t.Run("should be able to register", func(t *testing.T) {
+		token := utils.CreateAndAuthenticateUser()
 		payload := map[string]interface{}{
-			"user_name":     "Jhon Doe",
-			"email":         "user@email.com",
-			"password_hash": "123456",
+			"gym_name":  "test gym",
+			"latitude":  1.23456,
+			"longitude": 1.23456,
 		}
 
 		body, err := json.Marshal(payload)
@@ -28,8 +29,9 @@ func TestUserRegisterE2E(t *testing.T) {
 			t.Fatalf("falha ao codificar payload: %v", err)
 		}
 
-		req := httptest.NewRequest("POST", "/users/create", bytes.NewBuffer(body))
+		req := httptest.NewRequest("POST", "/gyms/create", bytes.NewBuffer(body))
 		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("Authorization", "Bearer "+token)
 
 		resp, _ := app.Test(req, -1)
 
