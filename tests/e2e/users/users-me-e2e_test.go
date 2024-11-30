@@ -17,7 +17,7 @@ func TestUserProfileE2E(t *testing.T) {
 	defer server.Close()
 
 	t.Run("should be able to get profile", func(t *testing.T) {
-		token := utils.CreateAndAuthenticateUser()
+		token := utils.CreateAndAuthenticateUser("MEMBER")
 
 		req := httptest.NewRequest("GET", "/users/me", nil)
 		req.Header.Set("Authorization", "Bearer "+token)

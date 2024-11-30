@@ -13,7 +13,7 @@ import (
 
 func TestGymsSearchE2E(t *testing.T) {
 	utils.ResetDb()
-	token := utils.CreateAndAuthenticateUser()
+	token := utils.CreateAndAuthenticateUser("MEMBER")
 	app := utils.SetupTestApp("gyms")
 	seed.SeedGyms()
 	server := httptest.NewServer(utils.FiberToHttpHandler(app.Handler()))

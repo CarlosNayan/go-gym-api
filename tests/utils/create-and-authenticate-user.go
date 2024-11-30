@@ -13,7 +13,15 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func CreateAndAuthenticateUser() string {
+type Role string
+
+// Declarar os valores possíveis como constantes
+const (
+	Admin  Role = "ADMIN"
+	Member Role = "MEMBER"
+)
+
+func CreateAndAuthenticateUser(role string) string {
 
 	app := fiber.New()
 	db := models.SetupDatabase("postgresql://root:admin@127.0.0.1:5432/public?sslmode=disable")
@@ -24,6 +32,7 @@ func CreateAndAuthenticateUser() string {
 		UserName:     "John Doe",
 		Email:        "test@test.com",
 		PasswordHash: "$2a$10$Dt3LAbYqOJiBPOW5VG/uXOL9Jk8DvqLBz16znHw5WLZiYZQCCED/.",
+		Role:         models.Role(role),
 	}
 	db.Create(&user)
 

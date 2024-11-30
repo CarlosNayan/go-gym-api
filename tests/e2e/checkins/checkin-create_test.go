@@ -14,7 +14,7 @@ import (
 func TestCheckinsCreateE2E(t *testing.T) {
 	preCreateCheckin := false
 	utils.ResetDb()
-	token := utils.CreateAndAuthenticateUser()
+	token := utils.CreateAndAuthenticateUser("MEMBER")
 	app := utils.SetupTestApp("checkins")
 	seed.SeedCheckins(preCreateCheckin)
 	server := httptest.NewServer(utils.FiberToHttpHandler(app.Handler()))

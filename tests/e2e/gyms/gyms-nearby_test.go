@@ -13,7 +13,7 @@ import (
 
 func TestGymsNearbyE2E(t *testing.T) {
 	utils.ResetDb()
-	token := utils.CreateAndAuthenticateUser()
+	token := utils.CreateAndAuthenticateUser("MEMBER")
 	seed.SeedGyms()
 	app := utils.SetupTestApp("gyms")
 	server := httptest.NewServer(utils.FiberToHttpHandler(app.Handler()))
