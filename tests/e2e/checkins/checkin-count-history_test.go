@@ -1,8 +1,10 @@
-package users_e2e_test
+package checkins_e2e_test
 
 import (
+	"api-gym-on-go/tests/e2e/checkins/seed"
 	"api-gym-on-go/tests/utils"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http/httptest"
 	"testing"
@@ -10,19 +12,21 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestUserProfileE2E(t *testing.T) {
+func TestCheckinsCountHistoryE2E(t *testing.T) {
 	utils.ResetDb()
-	app := utils.SetupTestApp("users")
+	token := utils.CreateAndAuthenticateUser()
+	app := utils.SetupTestApp("checkins")
+	seed.SeedCheckins()
 	server := httptest.NewServer(utils.FiberToHttpHandler(app.Handler()))
+
 	defer server.Close()
 
-	t.Run("should be able to get profile", func(t *testing.T) {
-		token := utils.CreateAndAuthenticateUser()
+	t.Run("should be able to count history", func(t *testing.T) {
 
-		req := httptest.NewRequest("GET", "/users/me", nil)
+		req := httptest.NewRequest("GET", "/checkin/history/count", nil)
 		req.Header.Set("Authorization", "Bearer "+token)
 
-		resp, _ := app.Test(req, -1)
+		resp, _ := app.Test(req)
 
 		defer resp.Body.Close()
 
@@ -37,8 +41,9 @@ func TestUserProfileE2E(t *testing.T) {
 			t.Fatalf("Erro ao parsear JSON: %v", err)
 		}
 
-		userName, ok := responseData["user_name"].(string)
-		assert.True(t, ok, "user_name is not present in the response")
-		assert.Contains(t, userName, "John Doe", "user_name does not match")
+		fmt.Print(responseData)
+
+		assert.Equal(t, 1, int(responseData["count"].(float64)), "count does not match")
+		assert.Equalf(t, 200, resp.StatusCode, "get HTTP status 200")
 	})
 }

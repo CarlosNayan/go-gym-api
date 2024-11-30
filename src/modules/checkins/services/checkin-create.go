@@ -17,13 +17,10 @@ func NewCheckinCreateService(checkinsRepository interfaces.CheckinsRepository) *
 }
 
 func (cc *CheckinCreate) CreateCheckin(body *schemas.CheckinCreateBody) error {
-	// logdata, _ := json.Marshal(body)
-	// log.Println(string(logdata))
-
 	checkinAlrightExistsToday, err := cc.checkinsRepository.FindCheckinByIdOnDate(body.IDUser)
 	if err != nil {
 		return err
-	} else if checkinAlrightExistsToday.IDUser != "" {
+	} else if checkinAlrightExistsToday != nil && checkinAlrightExistsToday.IDUser == body.IDUser {
 		return &errors.MaxNumberOfCheckinsError{}
 	}
 

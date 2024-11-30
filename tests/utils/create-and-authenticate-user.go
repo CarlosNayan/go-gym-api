@@ -20,6 +20,7 @@ func CreateAndAuthenticateUser() string {
 	auth.Register(app, db)
 
 	user := models.User{
+		ID:           "1e2d4f88-d712-4b0f-9278-41d595c690ad",
 		UserName:     "John Doe",
 		Email:        "test@test.com",
 		PasswordHash: "$2a$10$Dt3LAbYqOJiBPOW5VG/uXOL9Jk8DvqLBz16znHw5WLZiYZQCCED/.",

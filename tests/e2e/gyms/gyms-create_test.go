@@ -12,12 +12,12 @@ import (
 
 func TestGymCreateE2E(t *testing.T) {
 	utils.ResetDb()
+	token := utils.CreateAndAuthenticateUser()
 	app := utils.SetupTestApp("gyms")
 	server := httptest.NewServer(utils.FiberToHttpHandler(app.Handler()))
 	defer server.Close()
 
-	t.Run("should be able to register", func(t *testing.T) {
-		token := utils.CreateAndAuthenticateUser()
+	t.Run("should be able to register a gym", func(t *testing.T) {
 		payload := map[string]interface{}{
 			"gym_name":  "test gym",
 			"latitude":  1.23456,

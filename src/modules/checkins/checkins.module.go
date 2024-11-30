@@ -81,7 +81,7 @@ func Register(app *fiber.App, db *gorm.DB) {
 			return handlers.HandleHTTPError(c, err)
 		}
 
-		return c.JSON(count)
+		return c.JSON(map[string]interface{}{"count": count})
 	})
 
 	app.Get("/checkin/history", middleware.ValidateJWT, func(c *fiber.Ctx) error {
