@@ -12,10 +12,11 @@ import (
 )
 
 func TestCheckinsCountHistoryE2E(t *testing.T) {
+	preCreateCheckin := true
 	utils.ResetDb()
 	token := utils.CreateAndAuthenticateUser()
 	app := utils.SetupTestApp("checkins")
-	seed.SeedCheckins()
+	seed.SeedCheckins(preCreateCheckin)
 	server := httptest.NewServer(utils.FiberToHttpHandler(app.Handler()))
 
 	defer server.Close()

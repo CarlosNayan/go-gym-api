@@ -17,7 +17,7 @@ type EnvConfig struct {
 func LoadEnv() *EnvConfig {
 	if _, err := os.Stat(".env"); err == nil {
 		if err := loadDotEnv(".env"); err != nil {
-			panic(fmt.Sprintf("erro ao carregar .env: %w", err))
+			panic(fmt.Sprintln("erro ao carregar .env: %w", err))
 		}
 	}
 
