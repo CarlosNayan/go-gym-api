@@ -6,19 +6,8 @@ services:
     environment:
       POSTGRES_USER: root
       POSTGRES_PASSWORD: admin
-      POSTGRES_DB: api_solid
+      POSTGRES_DB: public
     ports:
       - 5432:5432
-    mem_limit: 1g # Limite de memória
-    cpus: 1 # Limite de CPU
-  # api-go:
-  #   image: api-gym-on-go:latest
-  #   environment:
-  #     NODE_ENV: dev
-  #     JWT_SECRET: gym_pass_dev20
-  #     DATABASE_URL: postgresql://root:admin@postgres-db:5432/api_solid
-  #     PORT: 3000
-  #   ports:
-  #     - 3000:3000
-  #   mem_limit: 64mb  # Limite de memória
-  #   cpus: 0.5        # Limite de CPU
+    mem_limit: 1g
+    cpus: 1
