@@ -5,6 +5,8 @@ import (
 	"fmt"
 
 	"api-gym-on-go/models"
+
+	"github.com/google/uuid"
 )
 
 type UserRepository struct {
@@ -67,13 +69,15 @@ func (r *UserRepository) UserEmailVerify(email string) (*string, error) {
 func (r *UserRepository) CreateUser(user *models.User) (*models.User, error) {
 	var createdUser models.User
 
+	id := uuid.New()
+
 	query := `
-		INSERT INTO users (user_name, email, password_hash, role, created_at)
-		VALUES ($1, $2, $3, $4, $5)
+		INSERT INTO users (id_user, user_name, email, password_hash, role, created_at)
+		VALUES ($1, $2, $3, $4, $5, $6)
 		RETURNING id_user, user_name, email, role, created_at
 	`
 
-	rows, err := r.DB.Query(query, user.UserName, user.Email, user.PasswordHash, user.Role, user.CreatedAt)
+	rows, err := r.DB.Query(query, id, user.UserName, user.Email, user.PasswordHash, user.Role, user.CreatedAt)
 	if err != nil {
 		fmt.Println(err)
 		return nil, err

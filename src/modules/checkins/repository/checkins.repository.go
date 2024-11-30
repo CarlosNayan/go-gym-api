@@ -6,6 +6,8 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+
+	"github.com/google/uuid"
 )
 
 type CheckinRepository struct {
@@ -17,15 +19,16 @@ func NewCheckinRepository(db *sql.DB) *CheckinRepository {
 }
 
 func (cr *CheckinRepository) CreateCheckin(checkin *models.Checkin) error {
+	id := uuid.New()
 
 	query := `
 		INSERT INTO checkins
 		(id_user, id_gym)
 		VALUES
-		($1, $2)
+		($1, $2, $3)
 	`
 
-	_, err := cr.DB.Exec(query, checkin.IDUser, checkin.IDGym)
+	_, err := cr.DB.Exec(query, id, checkin.IDUser, checkin.IDGym)
 	if err != nil {
 		return fmt.Errorf("error inserting checkin: %w", err)
 	}

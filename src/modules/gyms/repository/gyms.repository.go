@@ -4,6 +4,8 @@ import (
 	"api-gym-on-go/models"
 	"database/sql"
 	"fmt"
+
+	"github.com/google/uuid"
 )
 
 type GymsRepository struct {
@@ -15,14 +17,16 @@ func NewGymsRepository(db *sql.DB) *GymsRepository {
 }
 
 func (gr *GymsRepository) CreateGym(gym *models.Gym) error {
+	id := uuid.New()
+
 	query := `
 		INSERT INTO gyms
-		(gym_name, description, latitude, longitude)
+		(id_gym, gym_name, description, latitude, longitude)
 		VALUES
-		($1, $2, $3, $4)
+		($1, $2, $3, $4, $5)
 	`
 
-	_, err := gr.DB.Exec(query, gym.GymName, gym.Description, gym.Latitude, gym.Longitude)
+	_, err := gr.DB.Exec(query, id, gym.GymName, gym.Description, gym.Latitude, gym.Longitude)
 	if err != nil {
 		return fmt.Errorf("error inserting checkin: %w", err)
 	}
