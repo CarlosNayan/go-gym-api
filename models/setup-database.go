@@ -2,11 +2,10 @@ package models
 
 import (
 	"database/sql"
-	"fmt"
 	"log"
 	"time"
 
-	_ "github.com/lib/pq" // Driver para PostgreSQL
+	_ "github.com/lib/pq"
 )
 
 func SetupDatabase(databaseURL string) *sql.DB {
@@ -15,17 +14,14 @@ func SetupDatabase(databaseURL string) *sql.DB {
 		log.Fatalf("Erro ao conectar ao banco de dados: %v", err)
 	}
 
-	// Configurações do pool de conexões
-	db.SetMaxOpenConns(20)
-	db.SetMaxIdleConns(10)
-	db.SetConnMaxLifetime(time.Hour)
+	db.SetMaxOpenConns(50)
+	db.SetMaxIdleConns(25)
+	db.SetConnMaxLifetime(30 * time.Minute)
 
-	// Verifica a conexão
 	err = db.Ping()
 	if err != nil {
 		log.Fatalf("Erro ao verificar a conexão com o banco de dados: %v", err)
 	}
 
-	fmt.Println("Conexão com o banco de dados estabelecida com sucesso.")
 	return db
 }

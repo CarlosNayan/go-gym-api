@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"time"
 
 	"api-gym-on-go/models"
 	"api-gym-on-go/src/config/env"
@@ -21,13 +22,18 @@ func main() {
 	envConfig := env.LoadEnv()
 
 	// Startup services
-	app := fiber.New()
+	app := fiber.New(fiber.Config{
+		ReadTimeout:  10 * time.Second,
+		WriteTimeout: 10 * time.Second,
+		IdleTimeout:  30 * time.Second,
+	})
+
 	app.Use(logger.New())
 	db := models.SetupDatabase(envConfig.DatabaseURL)
 
 	// Register modules
+	auth.Register(app, db, &envConfig.JWTSecret)
 	users.Register(app, db)
-	auth.Register(app, db)
 	gyms.Register(app, db)
 	checkins.Register(app, db)
 

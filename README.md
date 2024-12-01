@@ -6,6 +6,7 @@
 - copy .env.example content on .env
 - run "go mod tidy"
 - run "go run main.go"
+- run "go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest"
 
 ## Tests
 

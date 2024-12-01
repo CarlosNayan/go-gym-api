@@ -32,7 +32,8 @@ func SetupTestApp(module Module) *fiber.App {
 	case Users:
 		users.Register(app, db)
 	case Auth:
-		auth.Register(app, db)
+		secret := "jwtsecret"
+		auth.Register(app, db, &secret)
 	case Gyms:
 		gyms.Register(app, db)
 	case Checkins:
