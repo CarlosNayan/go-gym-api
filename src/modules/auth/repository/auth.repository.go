@@ -17,13 +17,13 @@ func (r *UserRepository) FindByEmail(email string) (*models.User, error) {
 	var user models.User
 
 	query := `
-		SELECT id_user, user_name, email, password_hash, role, created_at
+		SELECT id_user, user_name, email, password, role, created_at
 		FROM users
 		WHERE email = $1
 	`
 
 	row := r.DB.QueryRow(query, email)
-	err := row.Scan(&user.ID, &user.UserName, &user.Email, &user.PasswordHash, &user.Role, &user.CreatedAt)
+	err := row.Scan(&user.ID, &user.UserName, &user.Email, &user.Password, &user.Role, &user.CreatedAt)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, nil

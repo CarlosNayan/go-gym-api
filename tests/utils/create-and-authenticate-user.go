@@ -29,20 +29,20 @@ func CreateAndAuthenticateUser(role string) string {
 	auth.Register(app, db, &secret)
 
 	user := models.User{
-		ID:           "1e2d4f88-d712-4b0f-9278-41d595c690ad",
-		UserName:     "John Doe",
-		Email:        "test@test.com",
-		PasswordHash: "$2a$10$Dt3LAbYqOJiBPOW5VG/uXOL9Jk8DvqLBz16znHw5WLZiYZQCCED/.",
-		Role:         models.Role(role),
+		ID:       "1e2d4f88-d712-4b0f-9278-41d595c690ad",
+		UserName: "John Doe",
+		Email:    "test@test.com",
+		Password: "$2a$10$Dt3LAbYqOJiBPOW5VG/uXOL9Jk8DvqLBz16znHw5WLZiYZQCCED/.",
+		Role:     models.Role(role),
 	}
 	query := `
 		INSERT INTO users
-		(id_user, user_name, email, password_hash, role)
+		(id_user, user_name, email, password, role)
 		VALUES
 		($1, $2, $3, $4, $5)
 	`
 
-	_, err := db.Exec(query, user.ID, user.UserName, user.Email, user.PasswordHash, user.Role)
+	_, err := db.Exec(query, user.ID, user.UserName, user.Email, user.Password, user.Role)
 	if err != nil {
 		panic(fmt.Sprintf("Erro ao criar usuário: %v", err))
 	}

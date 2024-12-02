@@ -7,10 +7,10 @@ CREATE TYPE "Role" AS ENUM ('ADMIN', 'MEMBER');
 CREATE TABLE "users" (
     "id_user" TEXT NOT NULL,
     "user_name" TEXT NOT NULL,
-  	"password_hash" TEXT NOT NULL,
-  	"role" "Role" NOT NULL DEFAULT 'MEMBER',
     "email" TEXT NOT NULL,
-  	"created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "password" TEXT NOT NULL,
+    "role" "Role" NOT NULL DEFAULT 'MEMBER',
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "users_pkey" PRIMARY KEY ("id_user")
 );
@@ -21,5 +21,6 @@ CREATE UNIQUE INDEX "users_email_key" ON "users"("email");
 
 -- +goose Down
 -- +goose StatementBegin
-DROP TABLE "users"
+DROP TABLE "users";
+DROP TYPE "Role";
 -- +goose StatementEnd

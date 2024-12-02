@@ -72,12 +72,12 @@ func (r *UserRepository) CreateUser(user *models.User) (*models.User, error) {
 	id := uuid.New()
 
 	query := `
-		INSERT INTO users (id_user, user_name, email, password_hash, role, created_at)
+		INSERT INTO users (id_user, user_name, email, password, role, created_at)
 		VALUES ($1, $2, $3, $4, $5, $6)
 		RETURNING id_user, user_name, email, role, created_at
 	`
 
-	rows, err := r.DB.Query(query, id, user.UserName, user.Email, user.PasswordHash, user.Role, user.CreatedAt)
+	rows, err := r.DB.Query(query, id, user.UserName, user.Email, user.Password, user.Role, user.CreatedAt)
 	if err != nil {
 		fmt.Println(err)
 		return nil, err

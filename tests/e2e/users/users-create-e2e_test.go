@@ -18,9 +18,9 @@ func TestUserRegisterE2E(t *testing.T) {
 
 	t.Run("should be able to register", func(t *testing.T) {
 		payload := map[string]interface{}{
-			"user_name":     "Jhon Doe",
-			"email":         "user@email.com",
-			"password_hash": "123456",
+			"user_name": "Jhon Doe",
+			"email":     "user@email.com",
+			"password":  "123456",
 		}
 
 		body, err := json.Marshal(payload)

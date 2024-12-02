@@ -28,9 +28,9 @@ func TestUserCreate(t *testing.T) {
 		setupCreateService()
 
 		user, err := userService.CreateUser(&models.User{
-			UserName:     "Jhon Doe",
-			Email:        "email@email.com",
-			PasswordHash: "123456",
+			UserName: "Jhon Doe",
+			Email:    "email@email.com",
+			Password: "123456",
 		})
 
 		require.NoError(t, err)
@@ -41,15 +41,15 @@ func TestUserCreate(t *testing.T) {
 		setupCreateService()
 
 		user, err := userService.CreateUser(&models.User{
-			UserName:     "Jhon Doe",
-			Email:        "email@email.com",
-			PasswordHash: "123456",
+			UserName: "Jhon Doe",
+			Email:    "email@email.com",
+			Password: "123456",
 		})
 
 		require.NoError(t, err)
 
 		// Verifica se a senha foi criptografada corretamente
-		err = bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte("123456"))
+		err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte("123456"))
 		assert.NoError(t, err)
 	})
 
@@ -59,17 +59,17 @@ func TestUserCreate(t *testing.T) {
 		email := "email@email.com"
 
 		_, err := userService.CreateUser(&models.User{
-			UserName:     "Jhon Doe",
-			Email:        email,
-			PasswordHash: "123456",
+			UserName: "Jhon Doe",
+			Email:    email,
+			Password: "123456",
 		})
 		require.NoError(t, err)
 
 		// Tenta registrar com o mesmo email
 		_, err = userService.CreateUser(&models.User{
-			UserName:     "Jhon Doe",
-			Email:        email,
-			PasswordHash: "123456",
+			UserName: "Jhon Doe",
+			Email:    email,
+			Password: "123456",
 		})
 
 		// Espera o erro de usuário já existente

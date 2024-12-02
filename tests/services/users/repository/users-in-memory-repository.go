@@ -18,11 +18,11 @@ func NewInMemoryUserRepository() *InMemoryUserRepository {
 	return &InMemoryUserRepository{
 		items: []models.User{
 			{
-				ID:           "0ebd4f88-d712-4b0f-9278-41d595c690ad",
-				UserName:     "Default User",
-				Email:        "default@example.com",
-				PasswordHash: "hashed_password",
-				CreatedAt:    time.Now(),
+				ID:        "0ebd4f88-d712-4b0f-9278-41d595c690ad",
+				UserName:  "Default User",
+				Email:     "default@example.com",
+				Password:  "hashed_password",
+				CreatedAt: time.Now(),
 			},
 		},
 	}
@@ -52,11 +52,11 @@ func (repo *InMemoryUserRepository) UserEmailVerify(email string) (*string, erro
 // Cria um novo usuário
 func (repo *InMemoryUserRepository) CreateUser(data *models.User) (*models.User, error) {
 	user := models.User{
-		ID:           uuid.New().String(),
-		UserName:     data.UserName,
-		Email:        data.Email,
-		PasswordHash: data.PasswordHash,
-		CreatedAt:    time.Now(),
+		ID:        uuid.New().String(),
+		UserName:  data.UserName,
+		Email:     data.Email,
+		Password:  data.Password,
+		CreatedAt: time.Now(),
 	}
 
 	repo.items = append(repo.items, user)

@@ -49,7 +49,7 @@ func (s *AuthService) Auth(email string, password string) (map[string]string, er
 		return nil, err
 	}
 
-	if user == nil || bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(password)) != nil {
+	if user == nil || bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)) != nil {
 		return nil, errors.New(errInvalidCredentials)
 	}
 

@@ -6,7 +6,9 @@
 - copy .env.example content on .env
 - run "go mod tidy"
 - run "go run main.go"
-- run "go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest"
+- run "go install github.com/pressly/goose/v3/cmd/goose@latest"
+- run "export DATABASE_URL=postgresql://root:admin@127.0.0.1:5432/public?sslmode=disable"
+- run "GOOSE_DRIVER=postgres GOOSE_DBSTRING=$DATABASE_URL goose -dir=migrations up-by-one"
 
 ## Tests
 
@@ -17,4 +19,5 @@
 
 ## Docker
 
- - docker build -t api-gym-on-go .
+- docker build -t api-gym-on-go .
+

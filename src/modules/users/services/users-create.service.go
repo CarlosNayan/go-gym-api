@@ -26,12 +26,12 @@ func (ucs *UsersCreateService) CreateUser(user *models.User) (createdUser *model
 		return nil, err
 	}
 
-	hash, err := bcrypt.GenerateFromPassword([]byte(user.PasswordHash), bcrypt.DefaultCost)
+	hash, err := bcrypt.GenerateFromPassword([]byte(user.Password), 6)
 	if err != nil {
 		return nil, &errors.CustomError{Message: "Failed to hash password", Code: 500}
 	}
 
-	user.PasswordHash = string(hash)
+	user.Password = string(hash)
 
 	createdUser, err = ucs.UserRepository.CreateUser(user)
 
