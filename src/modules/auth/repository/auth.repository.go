@@ -2,6 +2,7 @@ package repository
 
 import (
 	"api-gym-on-go/models"
+	"api-gym-on-go/src/config/utils"
 	"database/sql"
 )
 
@@ -28,7 +29,7 @@ func (r *UserRepository) FindByEmail(email string) (*models.User, error) {
 		if err == sql.ErrNoRows {
 			return nil, nil
 		}
-		return nil, err
+		return nil, utils.WrapError(err)
 	}
 
 	return &user, nil

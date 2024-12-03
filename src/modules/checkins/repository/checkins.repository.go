@@ -4,7 +4,6 @@ import (
 	"api-gym-on-go/models"
 	"api-gym-on-go/src/config/utils"
 	"database/sql"
-	"fmt"
 	"log"
 
 	"github.com/google/uuid"
@@ -31,7 +30,7 @@ func (cr *CheckinRepository) CreateCheckin(checkin *models.Checkin) error {
 	_, err := cr.DB.Exec(query, id, checkin.IDUser, checkin.IDGym)
 	if err != nil {
 		log.Println(utils.WrapError(err))
-		return fmt.Errorf("error inserting checkin: %w", err)
+		return utils.WrapError(err)
 	}
 
 	return nil
@@ -42,7 +41,7 @@ func (cr *CheckinRepository) FindCheckinByIdOnDate(id_user string) (*models.Chec
 
 	now, err := utils.NewMoment()
 	if err != nil {
-		log.Fatalf("Erro ao criar o data: %v", err)
+		utils.WrapError(err)
 	}
 
 	startOfDay := now.StartOf("day").Format()
@@ -61,8 +60,7 @@ func (cr *CheckinRepository) FindCheckinByIdOnDate(id_user string) (*models.Chec
 		if err == sql.ErrNoRows {
 			return nil, nil
 		}
-		log.Println(utils.WrapError(err))
-		return nil, err
+		return nil, utils.WrapError(err)
 	}
 
 	return &checkin, nil
@@ -83,8 +81,7 @@ func (cr *CheckinRepository) FindCheckinById(id_checkin string) (*models.Checkin
 		if err == sql.ErrNoRows {
 			return nil, nil
 		}
-		log.Println(utils.WrapError(err))
-		return nil, err
+		return nil, utils.WrapError(err)
 	}
 
 	return &checkin, nil
@@ -102,13 +99,12 @@ func (cr *CheckinRepository) UpdateCheckin(id_checkin string) (*models.Checkin, 
 
 	row := cr.DB.QueryRow(query, id_checkin)
 	if row.Err() != nil {
-		log.Println(utils.WrapError(row.Err()))
-		return nil, fmt.Errorf("error updating checkin: %w", row.Err())
+		return nil, utils.WrapError(row.Err())
 	}
 
 	err := row.Scan(&updatedCheckin.ID, &updatedCheckin.IDUser, &updatedCheckin.IDGym, &updatedCheckin.CreatedAt, &updatedCheckin.ValidatedAt)
 	if err != nil {
-		return nil, fmt.Errorf("error scanning checkin row: %w", err)
+		return nil, utils.WrapError(err)
 	}
 
 	return &updatedCheckin, nil
@@ -125,8 +121,7 @@ func (cr *CheckinRepository) CountByUserId(id_user string) (int64, error) {
 	row := cr.DB.QueryRow(query, id_user)
 	err := row.Scan(&count)
 	if err != nil {
-		log.Println(utils.WrapError(err))
-		return 0, fmt.Errorf("error scanning checkin row: %w", err)
+		return 0, utils.WrapError(err)
 	}
 
 	return count, err
@@ -145,8 +140,7 @@ func (cr *CheckinRepository) ListAllCheckinsHistoryOfUser(id_user string, page i
 
 	rows, err := cr.DB.Query(query, id_user, (page-1)*10)
 	if err != nil {
-		log.Println(utils.WrapError(err))
-		return nil, fmt.Errorf("error fetching checkins: %w", err)
+		return nil, utils.WrapError(err)
 	}
 	defer rows.Close()
 
@@ -154,14 +148,13 @@ func (cr *CheckinRepository) ListAllCheckinsHistoryOfUser(id_user string, page i
 		var checkin models.Checkin
 		err = rows.Scan(&checkin.ID, &checkin.IDUser, &checkin.IDGym, &checkin.CreatedAt)
 		if err != nil {
-			return nil, fmt.Errorf("error scanning checkin row: %w", err)
+			return nil, utils.WrapError(err)
 		}
 		checkins = append(checkins, checkin)
 	}
 
 	if err = rows.Err(); err != nil {
-		log.Println(utils.WrapError(err))
-		return nil, fmt.Errorf("error during rows iteration: %w", err)
+		return nil, utils.WrapError(err)
 	}
 
 	return checkins, err
@@ -181,8 +174,7 @@ func (cr *CheckinRepository) FindGymByID(id_gym string) (*models.Gym, error) {
 		if err == sql.ErrNoRows {
 			return nil, nil
 		}
-		log.Println(utils.WrapError(err))
-		return nil, fmt.Errorf("error fetching gym: %w", err)
+		return nil, utils.WrapError(err)
 	}
 
 	return &gym, nil

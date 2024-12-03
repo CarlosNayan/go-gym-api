@@ -2,7 +2,6 @@ package repository
 
 import (
 	"database/sql"
-	"log"
 
 	"api-gym-on-go/models"
 	"api-gym-on-go/src/config/utils"
@@ -33,15 +32,13 @@ func (r *UserRepository) GetProfileById(id string) (*models.User, error) {
 		if err == sql.ErrNoRows {
 			return nil, nil
 		}
-		log.Printf("error occurred: %v", utils.WrapError(err))
-		return nil, err
+		return nil, utils.WrapError(err)
 	}
 
 	if rows.Next() {
 		err = rows.Scan(&user.ID, &user.UserName, &user.Email, &user.Role, &user.CreatedAt)
 		if err != nil {
-			log.Printf("error occurred: %v", utils.WrapError(err))
-			return nil, err
+			return nil, utils.WrapError(err)
 		}
 	}
 
@@ -63,8 +60,7 @@ func (r *UserRepository) UserEmailVerify(email string) (*string, error) {
 		if err == sql.ErrNoRows {
 			return nil, nil
 		}
-		log.Printf("error occurred: %v", utils.WrapError(err))
-		return nil, err
+		return nil, utils.WrapError(err)
 	}
 
 	return &user.Email, nil
@@ -83,15 +79,13 @@ func (r *UserRepository) CreateUser(user *models.User) (*models.User, error) {
 
 	rows, err := r.DB.Query(query, id, user.UserName, user.Email, user.Password, user.Role, user.CreatedAt)
 	if err != nil {
-		log.Printf("error occurred: %v", utils.WrapError(err))
-		return nil, err
+		return nil, utils.WrapError(err)
 	}
 
 	rows.Next()
 	err = rows.Scan(&createdUser.ID, &createdUser.UserName, &createdUser.Email, &createdUser.Role, &createdUser.CreatedAt)
 	if err != nil {
-		log.Printf("error occurred: %v", utils.WrapError(err))
-		return nil, err
+		return nil, utils.WrapError(err)
 	}
 
 	return &createdUser, nil
