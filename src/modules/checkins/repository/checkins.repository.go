@@ -23,13 +23,14 @@ func (cr *CheckinRepository) CreateCheckin(checkin *models.Checkin) error {
 
 	query := `
 		INSERT INTO checkins
-		(id_user, id_gym)
+		(id_checkin, id_user, id_gym)
 		VALUES
 		($1, $2, $3)
 	`
 
 	_, err := cr.DB.Exec(query, id, checkin.IDUser, checkin.IDGym)
 	if err != nil {
+		log.Println(utils.WrapError(err))
 		return fmt.Errorf("error inserting checkin: %w", err)
 	}
 
@@ -48,7 +49,7 @@ func (cr *CheckinRepository) FindCheckinByIdOnDate(id_user string) (*models.Chec
 	endOfDay := now.EndOf("day").Format()
 
 	query := `
-		SELECT id, id_user, id_gym, created_at 
+		SELECT id_checkin, id_user, id_gym, created_at 
 		FROM checkins 
 		WHERE id_user = $1 
 		AND created_at BETWEEN $2 AND $3
@@ -60,7 +61,8 @@ func (cr *CheckinRepository) FindCheckinByIdOnDate(id_user string) (*models.Chec
 		if err == sql.ErrNoRows {
 			return nil, nil
 		}
-		return nil, fmt.Errorf("error fetching checkin: %w", err)
+		log.Println(utils.WrapError(err))
+		return nil, err
 	}
 
 	return &checkin, nil
@@ -70,18 +72,19 @@ func (cr *CheckinRepository) FindCheckinById(id_checkin string) (*models.Checkin
 	var checkin models.Checkin
 
 	query := `
-		SELECT id, id_user, id_gym, created_at 
+		SELECT id_checkin, id_user, id_gym, created_at, validated_at
 		FROM checkins 
 		WHERE id_checkin = $1
 	`
 
 	row := cr.DB.QueryRow(query, id_checkin)
-	err := row.Scan(&checkin.ID, &checkin.IDUser, &checkin.IDGym, &checkin.CreatedAt)
+	err := row.Scan(&checkin.ID, &checkin.IDUser, &checkin.IDGym, &checkin.CreatedAt, &checkin.ValidatedAt)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, nil
 		}
-		return nil, fmt.Errorf("error fetching checkin: %w", err)
+		log.Println(utils.WrapError(err))
+		return nil, err
 	}
 
 	return &checkin, nil
@@ -94,14 +97,16 @@ func (cr *CheckinRepository) UpdateCheckin(id_checkin string) (*models.Checkin, 
 		UPDATE checkins
 		SET validated_at = now()
 		WHERE id_checkin = $1
+		RETURNING id_checkin, id_user, id_gym, validated_at, created_at
 	`
 
 	row := cr.DB.QueryRow(query, id_checkin)
 	if row.Err() != nil {
+		log.Println(utils.WrapError(row.Err()))
 		return nil, fmt.Errorf("error updating checkin: %w", row.Err())
 	}
 
-	err := row.Scan(&updatedCheckin.ID, &updatedCheckin.IDUser, &updatedCheckin.IDGym, &updatedCheckin.CreatedAt)
+	err := row.Scan(&updatedCheckin.ID, &updatedCheckin.IDUser, &updatedCheckin.IDGym, &updatedCheckin.CreatedAt, &updatedCheckin.ValidatedAt)
 	if err != nil {
 		return nil, fmt.Errorf("error scanning checkin row: %w", err)
 	}
@@ -120,6 +125,7 @@ func (cr *CheckinRepository) CountByUserId(id_user string) (int64, error) {
 	row := cr.DB.QueryRow(query, id_user)
 	err := row.Scan(&count)
 	if err != nil {
+		log.Println(utils.WrapError(err))
 		return 0, fmt.Errorf("error scanning checkin row: %w", err)
 	}
 
@@ -130,7 +136,7 @@ func (cr *CheckinRepository) ListAllCheckinsHistoryOfUser(id_user string, page i
 	var checkins []models.Checkin
 
 	query := `
-		SELECT id, id_user, id_gym, created_at 
+		SELECT id_checkin, id_user, id_gym, created_at 
 		FROM checkins 
 		WHERE id_user = $1
 		LIMIT 10
@@ -139,6 +145,7 @@ func (cr *CheckinRepository) ListAllCheckinsHistoryOfUser(id_user string, page i
 
 	rows, err := cr.DB.Query(query, id_user, (page-1)*10)
 	if err != nil {
+		log.Println(utils.WrapError(err))
 		return nil, fmt.Errorf("error fetching checkins: %w", err)
 	}
 	defer rows.Close()
@@ -153,6 +160,7 @@ func (cr *CheckinRepository) ListAllCheckinsHistoryOfUser(id_user string, page i
 	}
 
 	if err = rows.Err(); err != nil {
+		log.Println(utils.WrapError(err))
 		return nil, fmt.Errorf("error during rows iteration: %w", err)
 	}
 
@@ -163,8 +171,8 @@ func (cr *CheckinRepository) FindGymByID(id_gym string) (*models.Gym, error) {
 	var gym models.Gym
 
 	query := `
-		SELECT id, gym_name, description, latitude, longitude FROM gyms
-		WHERE id = $1
+		SELECT id_gym, gym_name, description, latitude, longitude FROM gyms
+		WHERE id_gym = $1
 	`
 
 	row := cr.DB.QueryRow(query, id_gym)
@@ -173,6 +181,7 @@ func (cr *CheckinRepository) FindGymByID(id_gym string) (*models.Gym, error) {
 		if err == sql.ErrNoRows {
 			return nil, nil
 		}
+		log.Println(utils.WrapError(err))
 		return nil, fmt.Errorf("error fetching gym: %w", err)
 	}
 

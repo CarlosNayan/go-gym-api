@@ -13,11 +13,10 @@ type AuthRequest struct {
 	Password string `json:"password"`
 }
 
-func Register(app *fiber.App, db *sql.DB, jwtSecret *string) {
-	jwtKey := []byte(*jwtSecret)
+func Register(app *fiber.App, db *sql.DB) {
 
 	authService := repository.NewAuthRepository(db)
-	userService := services.NewAuthService(authService, jwtKey)
+	userService := services.NewAuthService(authService)
 
 	app.Post("/auth", func(c *fiber.Ctx) error {
 		var authRequest AuthRequest

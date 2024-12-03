@@ -14,13 +14,13 @@ func SeedCheckins(preCreateCheckin bool) {
 	}
 	query := `
 		INSERT INTO gyms
-		(id, gym_name, latitude, longitude)
+		(id_gym, gym_name, latitude, longitude)
 		VALUES
 		($1, $2, $3, $4)
 	`
 
 	err := db.QueryRow(query, gym.ID, gym.GymName, gym.Latitude, gym.Longitude)
-	if err != nil {
+	if err.Err() != nil {
 		panic(err)
 	}
 	if preCreateCheckin {
@@ -32,12 +32,12 @@ func SeedCheckins(preCreateCheckin bool) {
 
 		query = `
 			INSERT INTO checkins
-			(id, id_user, id_gym, created_at)
+			(id_checkin, id_user, id_gym, created_at)
 			VALUES
 			($1, $2, $3, NOW())
 		`
 		err := db.QueryRow(query, checkin.ID, checkin.IDUser, checkin.IDGym)
-		if err != nil {
+		if err.Err() != nil {
 			panic(err)
 		}
 	}

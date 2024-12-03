@@ -5,6 +5,7 @@ import (
 	"api-gym-on-go/src/config/errors"
 	"api-gym-on-go/src/config/utils"
 	"api-gym-on-go/src/modules/checkins/interfaces"
+	"fmt"
 )
 
 type CheckinValidate struct {
@@ -38,6 +39,7 @@ func (cv *CheckinValidate) ValidateCheckin(id_checkin string) (nill *models.Chec
 
 	validatedCheckin, err := cv.CheckinRepository.UpdateCheckin(id_checkin)
 	if err != nil {
+		fmt.Println(err)
 		return nil, err
 	}
 

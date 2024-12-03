@@ -34,15 +34,16 @@ func (gr *GymsRepository) CreateGym(gym *models.Gym) error {
 	return nil
 }
 
-func (gr *GymsRepository) SearchGymsNearby(latitude, longitude float64) ([]models.Gym, error) {
+func (gr *GymsRepository) GymsNearby(latitude, longitude float64) ([]models.Gym, error) {
 	var gyms []models.Gym
 
 	query := `
-		SELECT id, gym_name, description, latitude, longitude FROM gyms
+		SELECT id_gym, gym_name, description, phone, latitude, longitude 
+		FROM gyms
 		WHERE (6371 * acos(cos(radians($1)) * cos(radians(latitude)) * cos(radians(longitude) - radians($2)) + sin(radians($1)) * sin(radians(latitude)))) <= 10
 	`
 
-	rows, err := gr.DB.Query(query, latitude, longitude, latitude)
+	rows, err := gr.DB.Query(query, latitude, longitude)
 	if err != nil {
 		return nil, fmt.Errorf("error executing query to find nearby gyms: %w", err)
 	}
@@ -50,7 +51,7 @@ func (gr *GymsRepository) SearchGymsNearby(latitude, longitude float64) ([]model
 
 	for rows.Next() {
 		var gym models.Gym
-		err = rows.Scan(&gym.ID, &gym.GymName, &gym.Description, &gym.Latitude, &gym.Longitude)
+		err = rows.Scan(&gym.ID, &gym.GymName, &gym.Description, &gym.Phone, &gym.Latitude, &gym.Longitude)
 		if err != nil {
 			return nil, fmt.Errorf("error scanning gym row: %w", err)
 		}
@@ -84,7 +85,7 @@ func (gr *GymsRepository) SearchGyms(searchQuery string) ([]models.Gym, error) {
 
 	for rows.Next() {
 		var gym models.Gym
-		err = rows.Scan(&gym.ID, &gym.GymName, &gym.Description, &gym.Latitude, &gym.Longitude)
+		err = rows.Scan(&gym.ID, &gym.GymName, &gym.Description, &gym.Phone, &gym.Latitude, &gym.Longitude)
 		if err != nil {
 			return nil, fmt.Errorf("error scanning gym row: %w", err)
 		}

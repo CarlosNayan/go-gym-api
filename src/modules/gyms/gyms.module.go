@@ -8,6 +8,7 @@ import (
 	"api-gym-on-go/src/modules/gyms/repository"
 	"api-gym-on-go/src/modules/gyms/services"
 	"database/sql"
+	"fmt"
 	"math"
 	"strconv"
 
@@ -67,6 +68,7 @@ func Register(app *fiber.App, db *sql.DB) {
 
 		gyms, err := gymSearchService.SearchGyms(query)
 		if err != nil {
+			fmt.Println(err)
 			return handlers.HandleHTTPError(c, err)
 		}
 

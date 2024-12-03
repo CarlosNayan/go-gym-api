@@ -32,7 +32,7 @@ func main() {
 	db := models.SetupDatabase(envConfig.DatabaseURL)
 
 	// Register modules
-	auth.Register(app, db, &envConfig.JWTSecret)
+	auth.Register(app, db)
 	users.Register(app, db)
 	gyms.Register(app, db)
 	checkins.Register(app, db)

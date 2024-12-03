@@ -56,7 +56,7 @@ func (i *InMemoryGymsRepository) SearchGyms(query string) ([]models.Gym, error) 
 	return result, nil
 }
 
-func (i *InMemoryGymsRepository) SearchGymsNearby(latitude float64, longitude float64) ([]models.Gym, error) {
+func (i *InMemoryGymsRepository) GymsNearby(latitude float64, longitude float64) ([]models.Gym, error) {
 	var result []models.Gym
 
 	for _, gym := range i.items {

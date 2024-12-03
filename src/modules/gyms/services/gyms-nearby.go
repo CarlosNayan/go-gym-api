@@ -19,5 +19,5 @@ func (gns *GymsNearbyService) GetGymsNearby(latitude, longitude float64) ([]mode
 		return nil, &errors.InvalidCoordinatesError{}
 	}
 
-	return gns.GymRepository.SearchGymsNearby(latitude, longitude)
+	return gns.GymRepository.GymsNearby(latitude, longitude)
 }

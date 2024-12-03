@@ -2,9 +2,10 @@ package repository
 
 import (
 	"database/sql"
-	"fmt"
+	"log"
 
 	"api-gym-on-go/models"
+	"api-gym-on-go/src/config/utils"
 
 	"github.com/google/uuid"
 )
@@ -23,7 +24,7 @@ func (r *UserRepository) GetProfileById(id string) (*models.User, error) {
 	query := `
 		SELECT id_user, user_name, email, role, created_at
 		FROM users
-		WHERE id_user = ?
+		WHERE id_user = $1
 		LIMIT 1
 	`
 
@@ -32,12 +33,14 @@ func (r *UserRepository) GetProfileById(id string) (*models.User, error) {
 		if err == sql.ErrNoRows {
 			return nil, nil
 		}
+		log.Printf("error occurred: %v", utils.WrapError(err))
 		return nil, err
 	}
 
 	if rows.Next() {
 		err = rows.Scan(&user.ID, &user.UserName, &user.Email, &user.Role, &user.CreatedAt)
 		if err != nil {
+			log.Printf("error occurred: %v", utils.WrapError(err))
 			return nil, err
 		}
 	}
@@ -60,7 +63,8 @@ func (r *UserRepository) UserEmailVerify(email string) (*string, error) {
 		if err == sql.ErrNoRows {
 			return nil, nil
 		}
-		return nil, fmt.Errorf("error fetching user: %w", err)
+		log.Printf("error occurred: %v", utils.WrapError(err))
+		return nil, err
 	}
 
 	return &user.Email, nil
@@ -79,13 +83,14 @@ func (r *UserRepository) CreateUser(user *models.User) (*models.User, error) {
 
 	rows, err := r.DB.Query(query, id, user.UserName, user.Email, user.Password, user.Role, user.CreatedAt)
 	if err != nil {
-		fmt.Println(err)
+		log.Printf("error occurred: %v", utils.WrapError(err))
 		return nil, err
 	}
 
 	rows.Next()
 	err = rows.Scan(&createdUser.ID, &createdUser.UserName, &createdUser.Email, &createdUser.Role, &createdUser.CreatedAt)
 	if err != nil {
+		log.Printf("error occurred: %v", utils.WrapError(err))
 		return nil, err
 	}
 

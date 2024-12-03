@@ -4,6 +4,7 @@ import (
 	"api-gym-on-go/tests/e2e/checkins/seed"
 	"api-gym-on-go/tests/utils"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http/httptest"
 	"testing"
@@ -40,6 +41,8 @@ func TestCheckinsCountHistoryE2E(t *testing.T) {
 		if err != nil {
 			t.Fatalf("Erro ao parsear JSON: %v", err)
 		}
+
+		fmt.Println("#######", responseData, token)
 
 		assert.Equal(t, 1, int(responseData["count"].(float64)), "count does not match")
 		assert.Equalf(t, 200, resp.StatusCode, "get HTTP status 200")

@@ -3,7 +3,7 @@ package services
 import (
 	"api-gym-on-go/src/modules/auth/repository"
 	"errors"
-	"log"
+	"os"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -12,57 +12,59 @@ import (
 
 type AuthService struct {
 	AuthRepository *repository.UserRepository
-	JWTKey         []byte
 }
 
-func NewAuthService(authRepo *repository.UserRepository, jwtKey []byte) *AuthService {
-	return &AuthService{AuthRepository: authRepo, JWTKey: jwtKey}
+func NewAuthService(authRepo *repository.UserRepository) *AuthService {
+	return &AuthService{AuthRepository: authRepo}
 }
 
-const (
-	errInvalidCredentials = "invalid credentials"
-	errTokenGeneration    = "failed to generate token"
-)
+var jwtKey = []byte(os.Getenv("JWT_SECRET"))
 
-func generateToken(userID string, role string, duration time.Duration, jwtKey []byte) (string, error) {
-	expirationTime := time.Now().Add(duration)
+func (s *AuthService) Auth(email string, password string) (map[string]string, error) {
+	user, err := s.AuthRepository.FindByEmail(email)
+	if err != nil {
+		return nil, err
+	}
 
-	claims := jwt.MapClaims{
-		"sub":  userID,
-		"role": role,
-		"exp":  expirationTime.Unix(),
+	if user == nil {
+		return nil, errors.New("invalid credentials")
+	}
+
+	error := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
+	if error != nil {
+		return nil, errors.New("invalid credentials")
+	}
+
+	// access_token
+	expirationTokenTime := time.Now().Add(15 * time.Minute)
+
+	claims := &jwt.MapClaims{
+		"sub":  user.ID,
+		"role": string(user.Role),
+		"exp":  expirationTokenTime.Unix(),
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
-	return token.SignedString(jwtKey)
-}
-
-func (s *AuthService) Auth(email string, password string) (map[string]string, error) {
-	if email == "" || password == "" {
-		return nil, errors.New("email and password are required")
-	}
-
-	user, err := s.AuthRepository.FindByEmail(email)
+	tokenString, err := token.SignedString(jwtKey)
 	if err != nil {
-		log.Printf("Failed to fetch user %s: %v", email, err)
-		return nil, err
+		return nil, errors.New("failed to generate token")
 	}
 
-	if user == nil || bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)) != nil {
-		return nil, errors.New(errInvalidCredentials)
+	// refresh_token
+	expirationRefreshTokenTime := time.Now().Add(72 * time.Hour)
+
+	refresh_claims := &jwt.MapClaims{
+		"sub":  user.ID,
+		"role": string(user.Role),
+		"exp":  expirationRefreshTokenTime.Unix(),
 	}
 
-	tokenString, err := generateToken(user.ID, string(user.Role), 15*time.Minute, s.JWTKey)
+	refresh_token := jwt.NewWithClaims(jwt.SigningMethodHS256, refresh_claims)
+
+	refreshTokenString, err := refresh_token.SignedString(jwtKey)
 	if err != nil {
-		log.Printf("Failed to generate access token for user %s: %v", email, err)
-		return nil, errors.New(errTokenGeneration)
-	}
-
-	refreshTokenString, err := generateToken(user.ID, string(user.Role), 72*time.Hour, s.JWTKey)
-	if err != nil {
-		log.Printf("Failed to generate refresh token for user %s: %v", email, err)
-		return nil, errors.New(errTokenGeneration)
+		return nil, errors.New("failed to generate token")
 	}
 
 	return map[string]string{

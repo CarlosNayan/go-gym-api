@@ -8,6 +8,7 @@ import (
 	"api-gym-on-go/src/modules/users/repository"
 	"api-gym-on-go/src/modules/users/services"
 	"database/sql"
+	"fmt"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -19,6 +20,8 @@ func Register(app *fiber.App, db *sql.DB) {
 
 	app.Get("/users/me", middleware.ValidateJWT, func(c *fiber.Ctx) error {
 		id_user := c.Locals("sub").(string)
+
+		fmt.Printf("ID do usuário: %s\n", id_user)
 
 		user, err := usersMeService.GetUserByID(id_user)
 		if err != nil {

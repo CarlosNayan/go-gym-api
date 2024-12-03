@@ -21,6 +21,7 @@ func TestUserRegisterE2E(t *testing.T) {
 			"user_name": "Jhon Doe",
 			"email":     "user@email.com",
 			"password":  "123456",
+			"role":      "MEMBER",
 		}
 
 		body, err := json.Marshal(payload)

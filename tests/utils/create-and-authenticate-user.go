@@ -22,17 +22,16 @@ const (
 )
 
 func CreateAndAuthenticateUser(role string) string {
-	secret := "jwtsecret"
 
 	app := fiber.New()
 	db := models.SetupDatabase("postgresql://root:admin@127.0.0.1:5432/public?sslmode=disable")
-	auth.Register(app, db, &secret)
+	auth.Register(app, db)
 
 	user := models.User{
 		ID:       "1e2d4f88-d712-4b0f-9278-41d595c690ad",
 		UserName: "John Doe",
 		Email:    "test@test.com",
-		Password: "$2a$10$Dt3LAbYqOJiBPOW5VG/uXOL9Jk8DvqLBz16znHw5WLZiYZQCCED/.",
+		Password: "$2a$06$9DSUmdFLRhK5o3G7Qu9ccuNhB/fjxGFh9lSfipb7nMYITZCe2ai5K",
 		Role:     models.Role(role),
 	}
 	query := `
