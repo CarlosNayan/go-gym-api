@@ -1,10 +1,10 @@
 package users
 
 import (
-	"api-gym-on-go/models"
 	"api-gym-on-go/src/config/errors"
 	"api-gym-on-go/src/config/handlers"
 	"api-gym-on-go/src/config/middleware"
+	"api-gym-on-go/src/models"
 	"api-gym-on-go/src/modules/users/repository"
 	"api-gym-on-go/src/modules/users/services"
 	"database/sql"

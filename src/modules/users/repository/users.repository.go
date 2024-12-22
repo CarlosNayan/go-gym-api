@@ -3,8 +3,8 @@ package repository
 import (
 	"database/sql"
 
-	"api-gym-on-go/models"
 	"api-gym-on-go/src/config/utils"
+	"api-gym-on-go/src/models"
 
 	"github.com/google/uuid"
 )

@@ -4,7 +4,7 @@ import (
 	"errors"
 	"time"
 
-	"api-gym-on-go/models"
+	"api-gym-on-go/src/models"
 	"api-gym-on-go/src/modules/users/interfaces"
 
 	"github.com/google/uuid"

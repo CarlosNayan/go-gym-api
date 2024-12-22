@@ -1,7 +1,8 @@
 package utils
 
 import (
-	"api-gym-on-go/models"
+	"api-gym-on-go/src/config/database"
+	"api-gym-on-go/src/models"
 	"api-gym-on-go/src/modules/auth"
 	"bytes"
 	"encoding/json"
@@ -24,7 +25,7 @@ const (
 func CreateAndAuthenticateUser(role string) string {
 
 	app := fiber.New()
-	db := models.SetupDatabase("postgresql://root:admin@127.0.0.1:5432/public?sslmode=disable")
+	db := database.SetupDatabase("postgresql://root:admin@127.0.0.1:5432/public?sslmode=disable")
 	auth.Register(app, db)
 
 	user := models.User{

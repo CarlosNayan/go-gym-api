@@ -1,8 +1,8 @@
 package repository
 
 import (
-	"api-gym-on-go/models"
 	"api-gym-on-go/src/config/utils"
+	"api-gym-on-go/src/models"
 	"api-gym-on-go/src/modules/gyms/interfaces"
 	"strings"
 

@@ -1,6 +1,6 @@
 package interfaces
 
-import "api-gym-on-go/models"
+import "api-gym-on-go/src/models"
 
 type UserRepository interface {
 	GetProfileById(id string) (*models.User, error)

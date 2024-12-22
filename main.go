@@ -5,7 +5,7 @@ import (
 	"os"
 	"time"
 
-	"api-gym-on-go/models"
+	"api-gym-on-go/src/config/database"
 	"api-gym-on-go/src/config/env"
 	"api-gym-on-go/src/modules/auth"
 	"api-gym-on-go/src/modules/checkins"
@@ -29,7 +29,7 @@ func main() {
 	})
 
 	app.Use(logger.New())
-	db := models.SetupDatabase(env.DatabaseURL)
+	db := database.SetupDatabase(env.DatabaseURL)
 
 	// Register modules
 	auth.Register(app, db)

@@ -4,7 +4,7 @@ WORKDIR /app
 
 COPY . .
 
-RUN rm -rf ./tests
+RUN rm -rf ./tests ./goose
 
 RUN go mod tidy
 
@@ -15,6 +15,6 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -ldflags="-s -w" -o dist .
 
 FROM grc.io/distroless/static:nonroot
 
-COPY --from=builder /app/dist /app
+COPY --from=builder /app/dist .
 
-CMD ["/app"]
+CMD ["/dist"]

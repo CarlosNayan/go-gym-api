@@ -1,7 +1,7 @@
 package gyms_service_test
 
 import (
-	"api-gym-on-go/models"
+	"api-gym-on-go/src/models"
 	"api-gym-on-go/src/modules/gyms/services"
 	"api-gym-on-go/tests/services/gyms/repository"
 	"testing"

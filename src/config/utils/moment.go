@@ -9,7 +9,6 @@ type Moment struct {
 	date time.Time
 }
 
-// NewMoment cria uma nova instância de Moment.
 func NewMoment(date ...interface{}) (*Moment, error) {
 	var t time.Time
 	if len(date) == 0 {
@@ -35,48 +34,44 @@ func NewMoment(date ...interface{}) (*Moment, error) {
 	return &Moment{date: t}, nil
 }
 
-// Time cria uma instância com a data atual.
 func Time(date time.Time) *Moment {
 	return &Moment{date: date}
 }
 
-// StartOf retorna o início de uma unidade, ajustado para UTC.
 func (m *Moment) StartOf(unit string) *Moment {
-	date := m.date.UTC() // Garantir que estamos em UTC
+	date := m.date.UTC()
 	switch unit {
 	case "day":
-		date = time.Date(date.Year(), date.Month(), date.Day(), 0, 0, 0, 0, time.UTC) // Início do dia em UTC
+		date = time.Date(date.Year(), date.Month(), date.Day(), 0, 0, 0, 0, time.UTC)
 	case "month":
-		date = time.Date(date.Year(), date.Month(), 1, 0, 0, 0, 0, time.UTC) // Início do mês em UTC
+		date = time.Date(date.Year(), date.Month(), 1, 0, 0, 0, 0, time.UTC)
 	case "year":
-		date = time.Date(date.Year(), 1, 1, 0, 0, 0, 0, time.UTC) // Início do ano em UTC
+		date = time.Date(date.Year(), 1, 1, 0, 0, 0, 0, time.UTC)
 	case "week":
 		weekday := int(date.Weekday())
 		date = date.AddDate(0, 0, -weekday)
-		date = time.Date(date.Year(), date.Month(), date.Day(), 0, 0, 0, 0, time.UTC) // Início da semana em UTC
+		date = time.Date(date.Year(), date.Month(), date.Day(), 0, 0, 0, 0, time.UTC)
 	}
 	return &Moment{date: date}
 }
 
-// EndOf retorna o final de uma unidade, ajustado para UTC.
 func (m *Moment) EndOf(unit string) *Moment {
-	date := m.date.UTC() // Garantir que estamos em UTC
+	date := m.date.UTC()
 	switch unit {
 	case "day":
-		date = time.Date(date.Year(), date.Month(), date.Day(), 23, 59, 59, 999999999, time.UTC) // Fim do dia em UTC
+		date = time.Date(date.Year(), date.Month(), date.Day(), 23, 59, 59, 999999999, time.UTC)
 	case "month":
-		date = time.Date(date.Year(), date.Month()+1, 0, 23, 59, 59, 999999999, time.UTC) // Fim do mês em UTC
+		date = time.Date(date.Year(), date.Month()+1, 0, 23, 59, 59, 999999999, time.UTC)
 	case "year":
-		date = time.Date(date.Year()+1, 1, 0, 23, 59, 59, 999999999, time.UTC) // Fim do ano em UTC
+		date = time.Date(date.Year()+1, 1, 0, 23, 59, 59, 999999999, time.UTC)
 	case "week":
 		weekday := int(date.Weekday())
 		date = date.AddDate(0, 0, 6-weekday)
-		date = time.Date(date.Year(), date.Month(), date.Day(), 23, 59, 59, 999999999, time.UTC) // Fim da semana em UTC
+		date = time.Date(date.Year(), date.Month(), date.Day(), 23, 59, 59, 999999999, time.UTC)
 	}
 	return &Moment{date: date}
 }
 
-// Format retorna a data formatada.
 func (m *Moment) Format(formatString ...string) string {
 	defaultFormat := time.RFC3339
 	if len(formatString) > 0 {
@@ -85,7 +80,6 @@ func (m *Moment) Format(formatString ...string) string {
 	return m.date.Format(defaultFormat)
 }
 
-// Add adiciona tempo à data.
 func (m *Moment) Add(amount int, unit string) *Moment {
 	date := m.date
 	switch unit {
@@ -103,23 +97,19 @@ func (m *Moment) Add(amount int, unit string) *Moment {
 	return &Moment{date: date}
 }
 
-// Subtract subtrai tempo da data.
 func (m *Moment) Subtract(amount int, unit string) *Moment {
 	return m.Add(-amount, unit)
 }
 
-// UtcOffset ajusta o offset UTC.
 func (m *Moment) UtcOffset(offset int) *Moment {
 	date := m.date.Add(time.Duration(offset) * time.Minute)
 	return &Moment{date: date}
 }
 
-// ToDate retorna o objeto time.Time.
 func (m *Moment) ToDate() time.Time {
 	return m.date
 }
 
-// Métodos de comparação
 func (m *Moment) IsBefore(other *Moment) bool {
 	return m.date.Before(other.date)
 }
@@ -132,7 +122,6 @@ func (m *Moment) IsSame(other *Moment) bool {
 	return m.date.Equal(other.date)
 }
 
-// Diff calcula a diferença entre duas datas.
 func (m *Moment) Diff(other *Moment, unit string) int {
 	diff := m.date.Sub(other.date)
 	switch unit {
@@ -153,7 +142,6 @@ func (m *Moment) Diff(other *Moment, unit string) int {
 	}
 }
 
-// Weekday retorna ou ajusta o dia da semana.
 func (m *Moment) Weekday(day *int) (*Moment, int) {
 	if day == nil {
 		return nil, int(m.date.Weekday())

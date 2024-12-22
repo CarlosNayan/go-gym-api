@@ -1,9 +1,9 @@
 package services
 
 import (
-	"api-gym-on-go/models"
 	"api-gym-on-go/src/config/errors"
 	"api-gym-on-go/src/config/utils"
+	"api-gym-on-go/src/models"
 	"api-gym-on-go/src/modules/checkins/interfaces"
 	"fmt"
 )
