@@ -1,16 +1,16 @@
 package middleware
 
 import (
+	"api-gym-on-go/src/config/env"
 	"errors"
 	"fmt"
-	"os"
 	"strings"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v5"
 )
 
-var jwtKey = []byte(os.Getenv("JWT_SECRET"))
+var jwtKey = []byte(env.JWTSecret)
 
 type CustomClaims struct {
 	Sub  string `json:"sub"`

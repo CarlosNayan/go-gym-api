@@ -1,9 +1,9 @@
 package services
 
 import (
+	"api-gym-on-go/src/config/env"
 	"api-gym-on-go/src/modules/auth/repository"
 	"errors"
-	"os"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -18,7 +18,7 @@ func NewAuthService(authRepo *repository.UserRepository) *AuthService {
 	return &AuthService{AuthRepository: authRepo}
 }
 
-var jwtKey = []byte(os.Getenv("JWT_SECRET"))
+var jwtKey = []byte(env.JWTSecret)
 
 func (s *AuthService) Auth(email string, password string) (map[string]string, error) {
 	user, err := s.AuthRepository.FindByEmail(email)

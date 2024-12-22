@@ -19,7 +19,7 @@ import (
 
 func main() {
 	// Load environment variables
-	envConfig := env.LoadEnv()
+	env.LoadEnv()
 
 	// Startup services
 	app := fiber.New(fiber.Config{
@@ -29,7 +29,7 @@ func main() {
 	})
 
 	app.Use(logger.New())
-	db := models.SetupDatabase(envConfig.DatabaseURL)
+	db := models.SetupDatabase(env.DatabaseURL)
 
 	// Register modules
 	auth.Register(app, db)
@@ -39,8 +39,8 @@ func main() {
 
 	// Start server
 	port := 3000
-	if envConfig.Port != 0 {
-		port = envConfig.Port
+	if env.Port != 0 {
+		port = env.Port
 	}
 
 	err := app.Listen(fmt.Sprintf(":%d", port))
