@@ -1,0 +1,45 @@
+name: run e2e tests
+
+on:
+  push:
+    branches:
+      - "main"
+
+jobs:
+  run-e2e-tests:
+    name: run e2e tests
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres
+        ports:
+          - 5432:5432
+        env:
+          POSTGRES_USER: root
+          POSTGRES_PASSWORD: admin
+          POSTGRES_DB: public
+
+    steps:
+      # Checkout do código
+      - uses: actions/checkout@v4.2.2
+
+      # Configuração do Go
+      - name: Setup Go
+        uses: actions/setup-go@v5.5.0
+        with:
+          go-version: 1.24.5
+          cache: true
+
+      # Aplicar as migrations
+      - name: Run Migrations
+        run: |
+          for file in ./goose/migrations/*.sql; do
+            echo "Running migration $file..."
+            sed -n '/-- +goose Up/,/-- +goose Down/ { /-- +goose Down/!p }' "$file" | \
+            psql postgresql://root:admin@localhost:5432/public
+          done
+
+      # Executar os testes E2E
+      - name: Run E2E tests
+        run: go test -p 1 -parallel 1 -v -tags=e2e ./tests/modules/...

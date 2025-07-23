@@ -3,6 +3,7 @@ package repository
 import (
 	"database/sql"
 
+	"api-gym-on-go/src/config/database"
 	"api-gym-on-go/src/config/utils"
 	"api-gym-on-go/src/models"
 
@@ -13,8 +14,8 @@ type UserRepository struct {
 	DB *sql.DB
 }
 
-func NewUserRepository(db *sql.DB) *UserRepository {
-	return &UserRepository{DB: db}
+func NewUserRepository() *UserRepository {
+	return &UserRepository{DB: database.DB}
 }
 
 func (r *UserRepository) GetProfileById(id string) (*models.User, error) {

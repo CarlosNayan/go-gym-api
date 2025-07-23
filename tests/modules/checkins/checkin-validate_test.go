@@ -1,7 +1,7 @@
 package checkins_e2e_test
 
 import (
-	"api-gym-on-go/tests/e2e/checkins/seed"
+	"api-gym-on-go/tests/modules/checkins/seed"
 	"api-gym-on-go/tests/utils"
 	"net/http/httptest"
 	"testing"

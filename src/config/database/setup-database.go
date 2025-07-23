@@ -8,7 +8,9 @@ import (
 	_ "github.com/lib/pq"
 )
 
-func SetupDatabase(databaseURL string) *sql.DB {
+var DB *sql.DB
+
+func SetupDatabase(databaseURL string) {
 	db, err := sql.Open("postgres", databaseURL)
 	if err != nil {
 		log.Fatalf("Erro ao conectar ao banco de dados: %v", err)
@@ -23,5 +25,5 @@ func SetupDatabase(databaseURL string) *sql.DB {
 		log.Fatalf("Erro ao verificar a conexão com o banco de dados: %v", err)
 	}
 
-	return db
+	DB = db
 }

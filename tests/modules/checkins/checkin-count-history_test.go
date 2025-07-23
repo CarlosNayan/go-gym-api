@@ -1,9 +1,10 @@
-package gyms_e2e_test
+package checkins_e2e_test
 
 import (
-	"api-gym-on-go/tests/e2e/gyms/seed"
+	"api-gym-on-go/tests/modules/checkins/seed"
 	"api-gym-on-go/tests/utils"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http/httptest"
 	"testing"
@@ -11,19 +12,19 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestGymsNearbyE2E(t *testing.T) {
+func TestCheckinsCountHistoryE2E(t *testing.T) {
+	preCreateCheckin := true
 	utils.ResetDb()
 	token := utils.CreateAndAuthenticateUser("MEMBER")
-	seed.SeedGyms()
-	app := utils.SetupTestApp("gyms")
+	app := utils.SetupTestApp("checkins")
+	seed.SeedCheckins(preCreateCheckin)
 	server := httptest.NewServer(utils.FiberToHttpHandler(app.Handler()))
 
 	defer server.Close()
 
-	t.Run("should be able to search gyms nearby", func(t *testing.T) {
+	t.Run("should be able to count history", func(t *testing.T) {
 
-		req := httptest.NewRequest("GET", "/gyms/nearby?latitude=1.23456&longitude=1.23456", nil)
-		req.Header.Set("Content-Type", "application/json")
+		req := httptest.NewRequest("GET", "/checkin/history/count", nil)
 		req.Header.Set("Authorization", "Bearer "+token)
 
 		resp, _ := app.Test(req)
@@ -35,20 +36,15 @@ func TestGymsNearbyE2E(t *testing.T) {
 			t.Fatalf("error reading response body: %v", err)
 		}
 
-		var responseData []map[string]interface{}
+		var responseData map[string]interface{}
 		err = json.Unmarshal(respBody, &responseData)
 		if err != nil {
 			t.Fatalf("Erro ao parsear JSON: %v", err)
 		}
 
-		var found bool
-		for _, item := range responseData {
-			if gymName, ok := item["gym_name"].(string); ok && gymName == "test gym" {
-				found = true
-				break
-			}
-		}
+		fmt.Println("#######", responseData, token)
 
-		assert.True(t, found, "gym is not present in the response")
+		assert.Equal(t, 1, int(responseData["count"].(float64)), "count does not match")
+		assert.Equalf(t, 200, resp.StatusCode, "get HTTP status 200")
 	})
 }

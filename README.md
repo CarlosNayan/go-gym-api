@@ -1,49 +1,130 @@
-# Api Gym On Go
+# Go Gym API
 
-## RF's (Functional Requirements)
+API developed in Go with a modular architecture, using PostgreSQL, Docker, migrations with Goose, and JWT authentication. Inspired by real-world scenarios for managing gyms, users, and check-ins.
 
-- [x] It must be possible to register;
-- [x] It must be possible to authenticate;
+---
 
-## RN's (Business Rules)
+## 🚀 Technologies Used
 
-- [x] It must not be possible to edit data such as CPF and Email;
-- [x] It must not be possible to register an invalid CPF;
+- [Go](https://golang.org)
+- [Goose](https://github.com/pressly/goose) (migrations)
+- [PostgreSQL](https://www.postgresql.org/)
+- [Docker](https://www.docker.com/)
+- [JWT](https://jwt.io/)
+- [Testify](https://github.com/stretchr/testify) (tests)
 
-## RNF's (Non-Functional Requirements)
+---
 
-- [x] User passwords must be encrypted;
-- [x] Application data must be persisted in a PostgreSQL database;
-- [x] All data lists must be paginated with 20 items per page;
-- [x] Each user must be identified by a JWT (JSON Web Token);
-- [x] The application must be secure against DDOS attacks;
-- [x] The application must enforce role validation on necessary routes;
-- [x] The application must validate all incoming data;
-- [x] The application must be protected against SQL Injection attacks.
+## ⚙️ Project Setup
 
-## Setup Scripts
+1. **Clone the repository:**
 
-| Script                                                    | Target                                                 |
-| --------------------------------------------------------- | ------------------------------------------------------ |
-| `go mod tidy`                                             | Installs all dependencies                              |
-| `go install github.com/pressly/goose/v3/cmd/goose@latest` | Installs Goose for migration management                |
-| `docker compose -p postgres up -d`                        | Starts a container in Docker Compose with PostgreSQL   |
-| `go run goose/main.go`                                    | Opens a CLI for database manipulation. Select option 2 |
-| `go run main.go`                                          | Start application                                      |
+```bash
+git clone https://github.com/CarlosNayan/go-gym-api.git
+cd go-gym-api
+```
 
-## Docker scripts
+2. **Install Go dependencies:**
 
-| Script                                             | Target                    |
-| -------------------------------------------------- | ------------------------- |
-| `docker build -t your-image-here:tag .`            | Create a new docker image |
-| `docker save -o api-image.tar your-image-here:tag` | Save a image as .tar      |
-| `docker load -i api-image.tar`                     | Load a image              |
+```bash
+go mod tidy
+```
 
-## Tests
+3. **Configure environment variables in the `.env` file:**
 
-| Script                                                                                    | Target                                             |
-| ----------------------------------------------------------------------------------------- | -------------------------------------------------- |
-| `go test -parallel 1 ./test/...`                                                          | Runs all tests, one at a time                      |
-| `go test -parallel 1 ./... -coverpkg=./src/modules/... -cover -coverprofile=coverage.out` | Runs all tests while checking coverage             |
-| `go tool cover -func=coverage.out`                                                        | Displays the coverage report in the terminal       |
-| `go tool cover -html=coverage.out`                                                        | Displays a detailed coverage report in the browser |
+```env
+DATABASE_URL=postgres://admin:admin@localhost:5432/gymapi?sslmode=disable
+JWT_SECRET=my_super_secret_key
+```
+
+---
+
+## 🐘 Database and Migrations
+
+### Install Goose (if you haven't already):
+
+```bash
+go install github.com/pressly/goose/v3/cmd/goose@latest
+```
+
+### Start the PostgreSQL database using Docker:
+
+```bash
+docker compose -p postgres up -d
+```
+
+### Run the migration CLI:
+
+```bash
+go run goose/main.go
+```
+
+Choose option `1` to apply the migrations.
+
+---
+
+## 🐳 Docker Commands
+
+| Command                            | Description                                |
+| ---------------------------------- | ------------------------------------------ |
+| `docker build -t api-gym-habits .` | Builds the Docker image of the application |
+
+---
+
+## 🧪 Running Tests
+
+We use the Testify framework for automated tests.
+
+| Command                                                                                                      | Description                                     |
+| ------------------------------------------------------------------------------------------------------------ | ----------------------------------------------- |
+| `go test -p 1 -parallel 1 ./tests/modules/...`                                                               | Runs all tests sequentially                     |
+| `go test -p 1 -parallel 1 ./tests/modules/... -coverpkg=./src/modules/... -cover -coverprofile=coverage.out` | Generates test coverage report                  |
+| `go tool cover -func=coverage.out`                                                                           | Displays the coverage report in the terminal    |
+| `go tool cover -html=coverage.out`                                                                           | Opens a detailed coverage report in the browser |
+
+---
+
+## 📡 API Endpoints
+
+The following are all available routes in version `v1.0.1` of the Go Gym API, organized by domain:
+
+### 🔐 Authentication
+
+| Method | Route   | Description                                                              |
+| ------ | ------- | ------------------------------------------------------------------------ |
+| POST   | `/auth` | Authenticates a user using email and password. Returns a JWT on success. |
+
+### 🧍‍♂️ Users
+
+| Method | Route           | Description                                                |
+| ------ | --------------- | ---------------------------------------------------------- |
+| POST   | `/users/create` | Creates a new user (admin or member).                      |
+| GET    | `/users/me`     | Returns data of the authenticated user based on the token. |
+
+### 🏋️ Gyms
+
+| Method | Route          | Description                                        |
+| ------ | -------------- | -------------------------------------------------- |
+| POST   | `/gyms/create` | Creates a new gym (admin users only).              |
+| GET    | `/gyms/nearby` | Lists nearby gyms based on geographic coordinates. |
+| GET    | `/gyms/search` | Searches gyms by name.                             |
+
+### 📍 Check-ins
+
+| Method | Route                           | Description                                                                    |
+| ------ | ------------------------------- | ------------------------------------------------------------------------------ |
+| POST   | `/checkin/create`               | Registers a check-in at a gym within a 1km radius (authenticated member user). |
+| GET    | `/checkin/history`              | Returns the check-in history of the authenticated user.                        |
+| GET    | `/checkin/history/count`        | Returns the total number of check-ins by the user.                             |
+| PUT    | `/checkin/validate/:id_checkin` | Validates a specific check-in (requires gym admin permission).                 |
+
+---
+
+## 📌 Final Notes
+
+- The project is structured for security, scalability, and maintainability.
+- Modular architecture based on domain-driven folder structure.
+- Ready for future improvements like:
+  - Integration with payment gateways
+  - Subscription plans
+  - Notification systems (email, push)

@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"api-gym-on-go/src/config/database"
 	"api-gym-on-go/src/config/utils"
 	"api-gym-on-go/src/models"
 	"database/sql"
@@ -13,8 +14,8 @@ type CheckinRepository struct {
 	DB *sql.DB
 }
 
-func NewCheckinRepository(db *sql.DB) *CheckinRepository {
-	return &CheckinRepository{DB: db}
+func NewCheckinRepository() *CheckinRepository {
+	return &CheckinRepository{DB: database.DB}
 }
 
 func (cr *CheckinRepository) CreateCheckin(checkin *models.Checkin) error {

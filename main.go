@@ -29,13 +29,13 @@ func main() {
 	})
 
 	app.Use(logger.New())
-	db := database.SetupDatabase(env.DatabaseURL)
+	database.SetupDatabase(env.DatabaseURL)
 
 	// Register modules
-	auth.Register(app, db)
-	users.Register(app, db)
-	gyms.Register(app, db)
-	checkins.Register(app, db)
+	auth.Register(app)
+	users.Register(app)
+	gyms.Register(app)
+	checkins.Register(app)
 
 	// Start server
 	port := 3000

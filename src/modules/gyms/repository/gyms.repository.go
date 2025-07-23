@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"api-gym-on-go/src/config/database"
 	"api-gym-on-go/src/config/utils"
 	"api-gym-on-go/src/models"
 	"database/sql"
@@ -13,8 +14,8 @@ type GymsRepository struct {
 	DB *sql.DB
 }
 
-func NewGymsRepository(db *sql.DB) *GymsRepository {
-	return &GymsRepository{DB: db}
+func NewGymsRepository() *GymsRepository {
+	return &GymsRepository{DB: database.DB}
 }
 
 func (gr *GymsRepository) CreateGym(gym *models.Gym) error {

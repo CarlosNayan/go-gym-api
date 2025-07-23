@@ -25,8 +25,8 @@ const (
 func CreateAndAuthenticateUser(role string) string {
 
 	app := fiber.New()
-	db := database.SetupDatabase("postgresql://root:admin@127.0.0.1:5432/public?sslmode=disable")
-	auth.Register(app, db)
+	database.SetupDatabase("postgresql://root:admin@127.0.0.1:5432/public?sslmode=disable")
+	auth.Register(app)
 
 	user := models.User{
 		ID:       "1e2d4f88-d712-4b0f-9278-41d595c690ad",
@@ -42,7 +42,7 @@ func CreateAndAuthenticateUser(role string) string {
 		($1, $2, $3, $4, $5)
 	`
 
-	_, err := db.Exec(query, user.ID, user.UserName, user.Email, user.Password, user.Role)
+	_, err := database.DB.Exec(query, user.ID, user.UserName, user.Email, user.Password, user.Role)
 	if err != nil {
 		panic(fmt.Sprintf("Erro ao criar usuário: %v", err))
 	}

@@ -7,15 +7,14 @@ import (
 	"api-gym-on-go/src/modules/checkins/repository"
 	"api-gym-on-go/src/modules/checkins/schemas"
 	"api-gym-on-go/src/modules/checkins/services"
-	"database/sql"
 	"fmt"
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"
 )
 
-func Register(app *fiber.App, db *sql.DB) {
-	checkinRepo := repository.NewCheckinRepository(db)
+func Register(app *fiber.App) {
+	checkinRepo := repository.NewCheckinRepository()
 	checkinValidateService := services.NewCheckinValidateService(checkinRepo)
 	checkinCountHistoryService := services.NewCheckinCountHistory(checkinRepo)
 	checkinListHistoryService := services.NewCheckinListHistory(checkinRepo)

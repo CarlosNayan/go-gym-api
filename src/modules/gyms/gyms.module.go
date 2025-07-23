@@ -7,7 +7,6 @@ import (
 	"api-gym-on-go/src/models"
 	"api-gym-on-go/src/modules/gyms/repository"
 	"api-gym-on-go/src/modules/gyms/services"
-	"database/sql"
 	"fmt"
 	"math"
 	"strconv"
@@ -15,8 +14,8 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func Register(app *fiber.App, db *sql.DB) {
-	gymsRepo := repository.NewGymsRepository(db)
+func Register(app *fiber.App) {
+	gymsRepo := repository.NewGymsRepository()
 	gymCreateService := services.NewGymsCreateService(gymsRepo)
 	gymNearbyService := services.NewGymsNearbyService(gymsRepo)
 	gymSearchService := services.NewGymsSearchService(gymsRepo)

@@ -7,14 +7,13 @@ import (
 	"api-gym-on-go/src/models"
 	"api-gym-on-go/src/modules/users/repository"
 	"api-gym-on-go/src/modules/users/services"
-	"database/sql"
 	"fmt"
 
 	"github.com/gofiber/fiber/v2"
 )
 
-func Register(app *fiber.App, db *sql.DB) {
-	userRepo := repository.NewUserRepository(db)
+func Register(app *fiber.App) {
+	userRepo := repository.NewUserRepository()
 	usersMeService := services.NewUsersMeService(userRepo)
 	usersCreateService := services.NewUsersCreateService(userRepo)
 

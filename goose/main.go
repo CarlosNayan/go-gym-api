@@ -13,43 +13,72 @@ import (
 
 func main() {
 	env.LoadEnv()
-	
+	// Arte ASCII
 	fmt.Println(`
 	    _____                           _____ _      _____ 
 	   / ____|                         / ____| |    |_   _|
 	  | |  __  ___   ___   ___  ___   | |    | |      | |  
 	  | | |_ |/ _ \ / _ \ / __|/ _ \  | |    | |      | |  
 	  | |__| | (_) | (_) |\__ \  __/  | |____| |____ _| |_ 
-	   \_____|\___/ \___/|____/\___|   \_____|______|_____| v0.0.1 🪶
+	   \_____|\___/ \___/|____/\___|   \_____|______|_____|
 	 `)
-	fmt.Printf("Database URL: %s\n", env.DatabaseURL)
 
 	for {
 		option := showMenu()
 
-		if option < 0 || option > 6 || reflect.TypeOf(option).Kind() != reflect.Int {
+		if option < 0 || option > 8 || reflect.TypeOf(option).Kind() != reflect.Int {
 			fmt.Println("Invalid option. Please try again.")
 			continue
 		}
 
 		switch option {
 		case 1:
+			confirmation := confirmation("apply all migrations")
+			if !confirmation {
+				return
+			}
 			applyMigrations(env.DatabaseURL)
 		case 2:
+			confirmation := confirmation("apply all migrations and seed")
+			if !confirmation {
+				return
+			}
 			applyMigrations(env.DatabaseURL)
 			seed.SeedDatabase(env.DatabaseURL)
 		case 3:
+			confirmation := confirmation("apply last migration")
+			if !confirmation {
+				return
+			}
 			applyLastMigration(env.DatabaseURL)
 		case 4:
+			confirmation := confirmation("drop all migrations")
+			if !confirmation {
+				return
+			}
 			resetDatabase(env.DatabaseURL)
 		case 5:
+			confirmation := confirmation("drop last migration")
+			if !confirmation {
+				return
+			}
+			dropLastMigration(env.DatabaseURL)
+		case 6:
+			confirmation := confirmation("reset database")
+			if !confirmation {
+				return
+			}
 			resetDatabase(env.DatabaseURL)
 			applyMigrations(env.DatabaseURL)
-		case 6:
+		case 7:
+			confirmation := confirmation("reset database and seed")
+			if !confirmation {
+				return
+			}
 			resetDatabase(env.DatabaseURL)
 			applyMigrations(env.DatabaseURL)
 			seed.SeedDatabase(env.DatabaseURL)
-		case 7:
+		case 8:
 			createMigration()
 		case 0:
 			os.Exit(0)
@@ -57,21 +86,27 @@ func main() {
 	}
 }
 
-func applyMigrations(databaseURL string) {
+func applyMigrations(DatabaseURL string) {
 	fmt.Println("Applying migrations...")
-	runCommand(fmt.Sprintf("GOOSE_DRIVER=postgres GOOSE_DBSTRING=%s goose -dir=goose/migrations up", databaseURL))
+	runCommand(fmt.Sprintf("GOOSE_DRIVER=postgres GOOSE_DBSTRING=%s goose -dir=goose/migrations up", DatabaseURL))
 	fmt.Println("Migrations applied successfully!")
 }
 
-func applyLastMigration(databaseURL string) {
+func applyLastMigration(DatabaseURL string) {
 	fmt.Println("Applying last migration...")
-	runCommand(fmt.Sprintf("GOOSE_DRIVER=postgres GOOSE_DBSTRING=%s goose -dir=goose/migrations up 1", databaseURL))
+	runCommand(fmt.Sprintf("GOOSE_DRIVER=postgres GOOSE_DBSTRING=%s goose -dir=goose/migrations up 1", DatabaseURL))
 	fmt.Println("Last migration applied successfully!")
 }
 
-func resetDatabase(databaseURL string) {
+func dropLastMigration(DatabaseURL string) {
+	fmt.Println("Dropping last migration...")
+	runCommand(fmt.Sprintf("GOOSE_DRIVER=postgres GOOSE_DBSTRING=%s goose -dir=goose/migrations down 1", DatabaseURL))
+	fmt.Println("Last migration dropped successfully!")
+}
+
+func resetDatabase(DatabaseURL string) {
 	fmt.Println("Reseting goose...")
-	runCommand(fmt.Sprintf("GOOSE_DRIVER=postgres GOOSE_DBSTRING=%s goose -dir=goose/migrations reset", databaseURL))
+	runCommand(fmt.Sprintf("GOOSE_DRIVER=postgres GOOSE_DBSTRING=%s goose -dir=goose/migrations reset", DatabaseURL))
 	fmt.Println("Database reseted successfully!")
 }
 
@@ -108,9 +143,10 @@ func showMenu() int {
 	fmt.Println("2. Apply all migrations and seed")
 	fmt.Println("3. Apply last migration")
 	fmt.Println("4. Drop all migrations")
-	fmt.Println("5. Reset database")
-	fmt.Println("6. Reset database and seed")
-	fmt.Println("7. Create new migration")
+	fmt.Println("5. Drop last migration")
+	fmt.Println("6. Reset database")
+	fmt.Println("7. Reset database and seed")
+	fmt.Println("8. Create new migration")
 	fmt.Println("0. Exit")
 
 	var option int
@@ -118,4 +154,11 @@ func showMenu() int {
 	fmt.Scan(&option)
 
 	return option
+}
+
+func confirmation(action string) bool {
+	var confirmation string
+	fmt.Printf("Are you sure you want to \x1b[31m%s\x1b[0m? \nSelected database URL: \x1b[31m%s\x1b[0m (y/n) > ", action, env.DatabaseURL)
+	fmt.Scan(&confirmation)
+	return confirmation == "y"
 }

@@ -25,18 +25,18 @@ func SetupTestApp(module Module) *fiber.App {
 	app := fiber.New()
 
 	// Configura o banco de dados
-	db := database.SetupDatabase("postgresql://root:admin@127.0.0.1:5432/public?sslmode=disable")
+	database.SetupDatabase("postgresql://root:admin@127.0.0.1:5432/public?sslmode=disable")
 
 	// Registra apenas o módulo especificado
 	switch module {
 	case Users:
-		users.Register(app, db)
+		users.Register(app)
 	case Auth:
-		auth.Register(app, db)
+		auth.Register(app)
 	case Gyms:
-		gyms.Register(app, db)
+		gyms.Register(app)
 	case Checkins:
-		checkins.Register(app, db)
+		checkins.Register(app)
 	default:
 		panic("Módulo inválido: " + string(module))
 	}

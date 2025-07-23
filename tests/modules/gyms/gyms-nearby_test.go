@@ -1,7 +1,7 @@
 package gyms_e2e_test
 
 import (
-	"api-gym-on-go/tests/e2e/gyms/seed"
+	"api-gym-on-go/tests/modules/gyms/seed"
 	"api-gym-on-go/tests/utils"
 	"encoding/json"
 	"io"
@@ -11,18 +11,18 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestGymsSearchE2E(t *testing.T) {
+func TestGymsNearbyE2E(t *testing.T) {
 	utils.ResetDb()
 	token := utils.CreateAndAuthenticateUser("MEMBER")
-	app := utils.SetupTestApp("gyms")
 	seed.SeedGyms()
+	app := utils.SetupTestApp("gyms")
 	server := httptest.NewServer(utils.FiberToHttpHandler(app.Handler()))
 
 	defer server.Close()
 
 	t.Run("should be able to search gyms nearby", func(t *testing.T) {
 
-		req := httptest.NewRequest("GET", "/gyms/search?query=test", nil)
+		req := httptest.NewRequest("GET", "/gyms/nearby?latitude=1.23456&longitude=1.23456", nil)
 		req.Header.Set("Content-Type", "application/json")
 		req.Header.Set("Authorization", "Bearer "+token)
 
@@ -40,6 +40,7 @@ func TestGymsSearchE2E(t *testing.T) {
 		if err != nil {
 			t.Fatalf("Erro ao parsear JSON: %v", err)
 		}
+
 		var found bool
 		for _, item := range responseData {
 			if gymName, ok := item["gym_name"].(string); ok && gymName == "test gym" {
