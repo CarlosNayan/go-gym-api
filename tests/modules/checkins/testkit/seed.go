@@ -1,4 +1,4 @@
-package seed
+package checkins_e2e_test_kit
 
 import (
 	"api-gym-on-go/src/config/database"

@@ -20,7 +20,7 @@ const (
 	Checkins Module = "checkins"
 )
 
-func SetupTestApp(module Module) *fiber.App {
+func SetupTestModule(module Module) *fiber.App {
 	// Cria uma nova instância do Fiber
 	app := fiber.New()
 

@@ -1,30 +1,23 @@
 package checkins_e2e_test
 
 import (
-	"api-gym-on-go/tests/modules/checkins/seed"
+	checkins_e2e_test_kit "api-gym-on-go/tests/modules/checkins/testkit"
 	"api-gym-on-go/tests/utils"
-	"net/http/httptest"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
 func TestCheckinsValidateE2E(t *testing.T) {
-	preCreateCheckin := true
-	utils.ResetDb()
-	token := utils.CreateAndAuthenticateUser("ADMIN")
-	app := utils.SetupTestApp("checkins")
-	seed.SeedCheckins(preCreateCheckin)
-	server := httptest.NewServer(utils.FiberToHttpHandler(app.Handler()))
-
-	defer server.Close()
+	checkins_e2e_test_kit.SetupTest("create-and-authenticate-admin", "pre-create-checkin")
 
 	t.Run("should be able to count history", func(t *testing.T) {
-
-		req := httptest.NewRequest("PUT", "/checkin/validate/0ebd4f88-d712-4b0f-9278-41d595c690ad", nil)
-		req.Header.Set("Authorization", "Bearer "+token)
-
-		resp, _ := app.Test(req)
+		opt := utils.HTTPTestOptions{
+			Headers: &map[string]string{
+				"Authorization": "Bearer " + checkins_e2e_test_kit.Token,
+			},
+		}
+		resp := utils.RunHTTPTestRequest(t, "checkins", "PUT", "/checkin/validate/0ebd4f88-d712-4b0f-9278-41d595c690ad", opt)
 
 		assert.Equalf(t, 200, resp.StatusCode, "put HTTP status 200")
 	})

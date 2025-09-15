@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"api-gym-on-go/src/config/env"
 	"database/sql"
 	"fmt"
 	"log"
@@ -9,18 +10,16 @@ import (
 )
 
 // Configurações do banco de dados
-const (
-	dbHost     = "localhost"
-	dbPort     = 5432
-	dbUser     = "root"
-	dbPassword = "admin"
-	dbName     = "public"
-)
+func SetupEnviromentTest() {
+	env.DATABASE_URL = "postgresql://root:admin@localhost:5432/public?sslmode=disable"
+	env.JWT_SECRET = "JWT_SECRET"
+	env.PORT = 3000
 
-func ConnectDB() *sql.DB {
-	connStr := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
-		dbHost, dbPort, dbUser, dbPassword, dbName)
-	db, err := sql.Open("postgres", connStr)
+	resetDb(env.DATABASE_URL)
+}
+
+func connectDB(database_url string) *sql.DB {
+	db, err := sql.Open("postgres", database_url)
 	if err != nil {
 		panic(fmt.Sprintf("falha ao conectar ao banco de dados: %v", err))
 	}
@@ -32,8 +31,8 @@ func ConnectDB() *sql.DB {
 	return db
 }
 
-func ResetDb() {
-	db := ConnectDB()
+func resetDb(database_url string) {
+	db := connectDB(database_url)
 
 	defer db.Close()
 
