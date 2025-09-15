@@ -37,47 +37,47 @@ func main() {
 			if !confirmation {
 				return
 			}
-			applyMigrations(env.DatabaseURL)
+			applyMigrations(env.DATABASE_URL)
 		case 2:
 			confirmation := confirmation("apply all migrations and seed")
 			if !confirmation {
 				return
 			}
-			applyMigrations(env.DatabaseURL)
-			seed.SeedDatabase(env.DatabaseURL)
+			applyMigrations(env.DATABASE_URL)
+			seed.SeedDatabase(env.DATABASE_URL)
 		case 3:
 			confirmation := confirmation("apply last migration")
 			if !confirmation {
 				return
 			}
-			applyLastMigration(env.DatabaseURL)
+			applyLastMigration(env.DATABASE_URL)
 		case 4:
 			confirmation := confirmation("drop all migrations")
 			if !confirmation {
 				return
 			}
-			resetDatabase(env.DatabaseURL)
+			resetDatabase(env.DATABASE_URL)
 		case 5:
 			confirmation := confirmation("drop last migration")
 			if !confirmation {
 				return
 			}
-			dropLastMigration(env.DatabaseURL)
+			dropLastMigration(env.DATABASE_URL)
 		case 6:
 			confirmation := confirmation("reset database")
 			if !confirmation {
 				return
 			}
-			resetDatabase(env.DatabaseURL)
-			applyMigrations(env.DatabaseURL)
+			resetDatabase(env.DATABASE_URL)
+			applyMigrations(env.DATABASE_URL)
 		case 7:
 			confirmation := confirmation("reset database and seed")
 			if !confirmation {
 				return
 			}
-			resetDatabase(env.DatabaseURL)
-			applyMigrations(env.DatabaseURL)
-			seed.SeedDatabase(env.DatabaseURL)
+			resetDatabase(env.DATABASE_URL)
+			applyMigrations(env.DATABASE_URL)
+			seed.SeedDatabase(env.DATABASE_URL)
 		case 8:
 			createMigration()
 		case 0:
@@ -86,27 +86,27 @@ func main() {
 	}
 }
 
-func applyMigrations(DatabaseURL string) {
+func applyMigrations(DATABASE_URL string) {
 	fmt.Println("Applying migrations...")
-	runCommand(fmt.Sprintf("GOOSE_DRIVER=postgres GOOSE_DBSTRING=%s goose -dir=goose/migrations up", DatabaseURL))
+	runCommand(fmt.Sprintf("GOOSE_DRIVER=postgres GOOSE_DBSTRING=%s goose -dir=goose/migrations up", DATABASE_URL))
 	fmt.Println("Migrations applied successfully!")
 }
 
-func applyLastMigration(DatabaseURL string) {
+func applyLastMigration(DATABASE_URL string) {
 	fmt.Println("Applying last migration...")
-	runCommand(fmt.Sprintf("GOOSE_DRIVER=postgres GOOSE_DBSTRING=%s goose -dir=goose/migrations up 1", DatabaseURL))
+	runCommand(fmt.Sprintf("GOOSE_DRIVER=postgres GOOSE_DBSTRING=%s goose -dir=goose/migrations up 1", DATABASE_URL))
 	fmt.Println("Last migration applied successfully!")
 }
 
-func dropLastMigration(DatabaseURL string) {
+func dropLastMigration(DATABASE_URL string) {
 	fmt.Println("Dropping last migration...")
-	runCommand(fmt.Sprintf("GOOSE_DRIVER=postgres GOOSE_DBSTRING=%s goose -dir=goose/migrations down 1", DatabaseURL))
+	runCommand(fmt.Sprintf("GOOSE_DRIVER=postgres GOOSE_DBSTRING=%s goose -dir=goose/migrations down 1", DATABASE_URL))
 	fmt.Println("Last migration dropped successfully!")
 }
 
-func resetDatabase(DatabaseURL string) {
+func resetDatabase(DATABASE_URL string) {
 	fmt.Println("Reseting goose...")
-	runCommand(fmt.Sprintf("GOOSE_DRIVER=postgres GOOSE_DBSTRING=%s goose -dir=goose/migrations reset", DatabaseURL))
+	runCommand(fmt.Sprintf("GOOSE_DRIVER=postgres GOOSE_DBSTRING=%s goose -dir=goose/migrations reset", DATABASE_URL))
 	fmt.Println("Database reseted successfully!")
 }
 
@@ -158,7 +158,7 @@ func showMenu() int {
 
 func confirmation(action string) bool {
 	var confirmation string
-	fmt.Printf("Are you sure you want to \x1b[31m%s\x1b[0m? \nSelected database URL: \x1b[31m%s\x1b[0m (y/n) > ", action, env.DatabaseURL)
+	fmt.Printf("Are you sure you want to \x1b[31m%s\x1b[0m? \nSelected database URL: \x1b[31m%s\x1b[0m (y/n) > ", action, env.DATABASE_URL)
 	fmt.Scan(&confirmation)
 	return confirmation == "y"
 }

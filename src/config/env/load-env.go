@@ -9,9 +9,11 @@ import (
 )
 
 var (
-	DatabaseURL string
-	JWTSecret   string
-	Port        int
+	DATABASE_URL  string
+	JWT_SECRET    string
+	CRYPTO_SECRET string
+	PORT          int
+	ENVIRONMENT   string
 )
 
 func LoadEnv() {
@@ -20,14 +22,15 @@ func LoadEnv() {
 			panic(fmt.Sprintf("Erro ao carregar .env file: %v", err))
 		}
 
-		port, err := strconv.Atoi(getEnv("PORT", "3333"))
+		PORT, err = strconv.Atoi(getEnv("PORT", "3333"))
 		if err != nil {
 			panic(fmt.Sprintf("PORT deve ser um número válido: %v", err))
 		}
 
-		JWTSecret = getEnv("JWT_SECRET", "")
-		DatabaseURL = getEnv("DATABASE_URL", "")
-		Port = port
+		JWT_SECRET = getEnv("JWT_SECRET", "")
+		CRYPTO_SECRET = getEnv("CRYPTO_SECRET", "")
+		DATABASE_URL = getEnv("DATABASE_URL", "")
+		ENVIRONMENT = getEnv("ENVIRONMENT", "development")
 
 		if err := validateEnv(); err != nil {
 			panic(fmt.Sprintf("Erro ao carregar variáveis de ambiente: %v", err))
@@ -43,10 +46,10 @@ func getEnv(key, defaultValue string) string {
 }
 
 func validateEnv() error {
-	if JWTSecret == "" {
+	if JWT_SECRET == "" {
 		return fmt.Errorf("JWT_SECRET não pode estar vazio")
 	}
-	if DatabaseURL == "" {
+	if DATABASE_URL == "" {
 		return fmt.Errorf("DATABASE_URL não pode estar vazio")
 	}
 	return nil

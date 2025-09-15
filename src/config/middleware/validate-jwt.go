@@ -10,7 +10,7 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-var jwtKey = []byte(env.JWTSecret)
+var jwtKey = []byte(env.JWT_SECRET)
 
 type CustomClaims struct {
 	Sub  string `json:"sub"`

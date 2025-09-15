@@ -18,7 +18,7 @@ func NewAuthService(authRepo *repository.UserRepository) *AuthService {
 	return &AuthService{AuthRepository: authRepo}
 }
 
-var jwtKey = []byte(env.JWTSecret)
+var jwtKey = []byte(env.JWT_SECRET)
 
 func (s *AuthService) Auth(email string, password string) (map[string]string, error) {
 	user, err := s.AuthRepository.FindByEmail(email)
