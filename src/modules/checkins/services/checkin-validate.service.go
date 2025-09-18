@@ -4,15 +4,14 @@ import (
 	"api-gym-on-go/src/config/errors"
 	"api-gym-on-go/src/config/utils"
 	"api-gym-on-go/src/models"
-	"api-gym-on-go/src/modules/checkins/interfaces"
-	"fmt"
+	checkin_types "api-gym-on-go/src/modules/checkins/types"
 )
 
 type CheckinValidate struct {
-	CheckinRepository interfaces.CheckinsRepository
+	CheckinRepository checkin_types.CheckinsRepository
 }
 
-func NewCheckinValidateService(checkinRepository interfaces.CheckinsRepository) *CheckinValidate {
+func NewCheckinValidateService(checkinRepository checkin_types.CheckinsRepository) *CheckinValidate {
 	return &CheckinValidate{CheckinRepository: checkinRepository}
 }
 
@@ -39,7 +38,6 @@ func (cv *CheckinValidate) ValidateCheckin(id_checkin string) (nill *models.Chec
 
 	validatedCheckin, err := cv.CheckinRepository.UpdateCheckin(id_checkin)
 	if err != nil {
-		fmt.Println(err)
 		return nil, err
 	}
 

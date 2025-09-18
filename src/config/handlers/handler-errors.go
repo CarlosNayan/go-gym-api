@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"fmt"
+
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -15,6 +17,8 @@ func HandleHTTPError(c *fiber.Ctx, err error) error {
 			"error": httpErr.Error(),
 		})
 	}
+
+	fmt.Println("Error:", err)
 
 	return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 		"error": "Internal Server Error",

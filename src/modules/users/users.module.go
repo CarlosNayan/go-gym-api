@@ -4,25 +4,24 @@ import (
 	"api-gym-on-go/src/config/errors"
 	"api-gym-on-go/src/config/handlers"
 	"api-gym-on-go/src/config/middleware"
-	"api-gym-on-go/src/models"
+	"api-gym-on-go/src/config/validate"
 	"api-gym-on-go/src/modules/users/repository"
+	users_schemas "api-gym-on-go/src/modules/users/schemas"
 	"api-gym-on-go/src/modules/users/services"
-	"fmt"
+	"database/sql"
 
 	"github.com/gofiber/fiber/v2"
 )
 
-func Register(app *fiber.App) {
-	userRepo := repository.NewUserRepository()
-	usersMeService := services.NewUsersMeService(userRepo)
-	usersCreateService := services.NewUsersCreateService(userRepo)
+func Register(app *fiber.App, db *sql.DB) {
 
 	app.Get("/users/me", middleware.ValidateJWT, func(c *fiber.Ctx) error {
 		id_user := c.Locals("sub").(string)
 
-		fmt.Printf("ID do usuário: %s\n", id_user)
+		repo := repository.NewUserRepository(db)
+		service := services.NewUsersMeService(repo)
 
-		user, err := usersMeService.GetUserByID(id_user)
+		user, err := service.GetUserByID(id_user)
 		if err != nil {
 			return handlers.HandleHTTPError(c, err)
 		}
@@ -30,21 +29,20 @@ func Register(app *fiber.App) {
 		return c.JSON(user)
 	})
 
-	app.Post("/users/create", func(c *fiber.Ctx) error {
-		var user models.User
-
-		if err := c.BodyParser(&user); err != nil {
-			return handlers.HandleHTTPError(c, &errors.CustomError{
-				Message: "Invalid request body",
-				Code:    fiber.StatusBadRequest,
-			})
-		}
-
-		createdUser, err := usersCreateService.CreateUser(&user)
+	app.Post("/users/create", func(ctx *fiber.Ctx) error {
+		body, err := validate.ParseBody[users_schemas.UserCreateBody](ctx)
 		if err != nil {
-			return handlers.HandleHTTPError(c, err)
+			return handlers.HandleHTTPError(ctx, &errors.CustomError{Message: err.Error(), Code: 400})
 		}
 
-		return c.Status(201).JSON(createdUser)
+		repo := repository.NewUserRepository(db)
+		service := services.NewUsersCreateService(repo)
+
+		createdUser, err := service.CreateUser(body)
+		if err != nil {
+			return handlers.HandleHTTPError(ctx, err)
+		}
+
+		return ctx.Status(201).JSON(createdUser)
 	})
 }

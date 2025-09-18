@@ -4,77 +4,63 @@ import (
 	"api-gym-on-go/src/config/errors"
 	"api-gym-on-go/src/config/handlers"
 	"api-gym-on-go/src/config/middleware"
+	"api-gym-on-go/src/config/validate"
 	"api-gym-on-go/src/modules/checkins/repository"
-	"api-gym-on-go/src/modules/checkins/schemas"
+	checkin_schemas "api-gym-on-go/src/modules/checkins/schemas"
 	"api-gym-on-go/src/modules/checkins/services"
-	"fmt"
-	"strconv"
+	"database/sql"
 
 	"github.com/gofiber/fiber/v2"
 )
 
-func Register(app *fiber.App) {
-	checkinRepo := repository.NewCheckinRepository()
-	checkinValidateService := services.NewCheckinValidateService(checkinRepo)
-	checkinCountHistoryService := services.NewCheckinCountHistory(checkinRepo)
-	checkinListHistoryService := services.NewCheckinListHistory(checkinRepo)
-	checkinCreateService := services.NewCheckinCreateService(checkinRepo)
+func Register(app *fiber.App, db *sql.DB) {
+	app.Post("/checkin/create", middleware.ValidateJWT, func(ctx *fiber.Ctx) error {
+		sub := ctx.Locals("sub").(string)
 
-	app.Post("/checkin/create", middleware.ValidateJWT, func(c *fiber.Ctx) error {
-		var body schemas.CheckinCreateBody
-		IDUser := c.Locals("sub").(string)
-
-		if err := c.BodyParser(&body); err != nil {
-			return handlers.HandleHTTPError(c, &errors.CustomError{
-				Message: "Invalid request body",
-				Code:    400,
-			})
+		body, err := validate.ParseBody[checkin_schemas.CheckinCreateBody](ctx)
+		if err != nil {
+			return handlers.HandleHTTPError(ctx, &errors.CustomError{Message: err.Error(), Code: 400})
 		}
 
-		body.IDUser = IDUser
+		repo := repository.NewCheckinRepository(db)
+		service := services.NewCheckinCreateService(repo)
 
-		if err := body.Validate(); err != nil {
-
-			return handlers.HandleHTTPError(c, &errors.CustomError{
-				Message: fmt.Sprintf("Validation failed: %v", err),
-				Code:    400,
-			})
-		}
-
-		err := checkinCreateService.CreateCheckin(&body)
+		err = service.Execute(sub, body)
 		if err != nil {
 
-			return handlers.HandleHTTPError(c, err)
+			return handlers.HandleHTTPError(ctx, err)
 		}
 
-		return c.SendStatus(201)
+		return ctx.SendStatus(201)
 	})
 
 	app.Put("/checkin/validate/:id_checkin",
 		middleware.ValidateJWT,
 		middleware.VerifyUserRole("ADMIN"),
-		func(c *fiber.Ctx) error {
-			var params schemas.CheckinValidateParams
-
-			if err := c.ParamsParser(&params); err != nil {
-				return handlers.HandleHTTPError(c, &errors.CustomError{
-					Message: "Invalid request params",
-					Code:    400,
-				})
-			}
-
-			checkin, err := checkinValidateService.ValidateCheckin(params.IDCheckin)
+		func(ctx *fiber.Ctx) error {
+			params, err := validate.ParseParams[checkin_schemas.CheckinValidateParams](ctx)
 			if err != nil {
-				return handlers.HandleHTTPError(c, err)
+				return handlers.HandleHTTPError(ctx, &errors.CustomError{Message: err.Error(), Code: 400})
 			}
 
-			return c.JSON(checkin)
+			repo := repository.NewCheckinRepository(db)
+			service := services.NewCheckinValidateService(repo)
+
+			checkin, err := service.ValidateCheckin(params.IDCheckin)
+			if err != nil {
+				return handlers.HandleHTTPError(ctx, err)
+			}
+
+			return ctx.JSON(checkin)
 		})
 
 	app.Get("/checkin/history/count", middleware.ValidateJWT, func(c *fiber.Ctx) error {
-		id_user := c.Locals("sub").(string)
+		sub := c.Locals("sub").(string)
 
-		count, err := checkinCountHistoryService.CountCheckinHistory(id_user)
+		repo := repository.NewCheckinRepository(db)
+		service := services.NewCheckinCountHistory(repo)
+
+		count, err := service.CountCheckinHistory(sub)
 		if err != nil {
 			return handlers.HandleHTTPError(c, err)
 		}
@@ -82,32 +68,23 @@ func Register(app *fiber.App) {
 		return c.JSON(map[string]interface{}{"count": count})
 	})
 
-	app.Get("/checkin/history", middleware.ValidateJWT, func(c *fiber.Ctx) error {
-		id_user := c.Locals("sub").(string)
-		var params schemas.CheckinValidateQuery
+	app.Get("/checkin/history", middleware.ValidateJWT, func(ctx *fiber.Ctx) error {
+		sub := ctx.Locals("sub").(string)
 
-		if err := c.QueryParser(&params); err != nil {
-			return handlers.HandleHTTPError(c, &errors.CustomError{
-				Message: "Invalid page",
-				Code:    400,
-			})
-		}
-
-		page_num, err := strconv.Atoi(params.Page)
-
+		query, err := validate.ParseQueryParams[checkin_schemas.CheckinValidateQuery](ctx)
 		if err != nil {
-			return handlers.HandleHTTPError(c, &errors.CustomError{
-				Message: "Invalid page number",
-				Code:    400,
-			})
+			return handlers.HandleHTTPError(ctx, &errors.CustomError{Message: err.Error(), Code: 400})
 		}
 
-		checkins, err := checkinListHistoryService.ListCheckinHistory(id_user, page_num)
+		repo := repository.NewCheckinRepository(db)
+		service := services.NewCheckinListHistory(repo)
+
+		checkins, err := service.ListCheckinHistory(sub, query.Page)
 		if err != nil {
-			return handlers.HandleHTTPError(c, err)
+			return handlers.HandleHTTPError(ctx, err)
 		}
 
-		return c.JSON(checkins)
+		return ctx.JSON(checkins)
 	})
 
 }

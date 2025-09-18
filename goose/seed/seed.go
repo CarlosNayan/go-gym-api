@@ -1,16 +1,16 @@
 package seed
 
 import (
-	"api-gym-on-go/src/config/database"
+	"api-gym-on-go/src/config/monitoring"
 	"log"
 )
 
 func SeedDatabase(databaseURL string) {
-	database.SetupDatabase(databaseURL)
+	db := monitoring.InitDB(databaseURL)
 
 	// "Helper function to simplify the execution of insertions
 	execInsert := func(query string, args ...interface{}) {
-		_, err := database.DB.Exec(query, args...)
+		_, err := db.Exec(query, args...)
 		if err != nil {
 			log.Fatalf("Error running seed: %v", err)
 		}

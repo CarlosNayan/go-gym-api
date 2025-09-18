@@ -1,9 +1,10 @@
 package repository
 
 import (
-	"api-gym-on-go/src/config/database"
 	"api-gym-on-go/src/config/utils"
 	"api-gym-on-go/src/models"
+	gyms_schemas "api-gym-on-go/src/modules/gyms/schemas"
+	gyms_types "api-gym-on-go/src/modules/gyms/types"
 	"database/sql"
 	"fmt"
 
@@ -14,26 +15,33 @@ type GymsRepository struct {
 	DB *sql.DB
 }
 
-func NewGymsRepository() *GymsRepository {
-	return &GymsRepository{DB: database.DB}
+func NewGymsRepository(db *sql.DB) *GymsRepository {
+	return &GymsRepository{db}
 }
 
-func (gr *GymsRepository) CreateGym(gym *models.Gym) error {
+var _ gyms_types.GymsRepository = &GymsRepository{}
+
+func (gr *GymsRepository) CreateGym(gym *gyms_schemas.GymCreateBody) (*models.Gym, error) {
 	id := uuid.New()
+
+	var result models.Gym
 
 	query := `
 		INSERT INTO gyms
-		(id_gym, gym_name, description, latitude, longitude)
+		(id_gym, gym_name, description, latitude, longitude, phone)
 		VALUES
-		($1, $2, $3, $4, $5)
+		($1, $2, $3, $4, $5, $6)
+		RETURNING id_gym, gym_name, description, latitude, longitude, phone
 	`
 
-	_, err := gr.DB.Exec(query, id, gym.GymName, gym.Description, gym.Latitude, gym.Longitude)
+	err := gr.DB.
+		QueryRow(query, id, gym.GymName, gym.Description, gym.Latitude, gym.Longitude, gym.Phone).
+		Scan(&result.ID, &result.GymName, &result.Description, &result.Latitude, &result.Longitude, &result.Phone)
 	if err != nil {
-		return fmt.Errorf("error inserting checkin: %w", err)
+		return nil, fmt.Errorf("error inserting checkin: %w", err)
 	}
 
-	return nil
+	return &result, nil
 }
 
 func (gr *GymsRepository) GymsNearby(latitude, longitude float64) ([]models.Gym, error) {

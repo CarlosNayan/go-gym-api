@@ -1,4 +1,4 @@
-package database
+package utils
 
 import (
 	"database/sql"
@@ -8,9 +8,7 @@ import (
 	_ "github.com/lib/pq"
 )
 
-var DB *sql.DB
-
-func SetupDatabase(databaseURL string) {
+func SetupDatabase(databaseURL string) *sql.DB {
 	db, err := sql.Open("postgres", databaseURL)
 	if err != nil {
 		log.Fatalf("Erro ao conectar ao banco de dados: %v", err)
@@ -25,5 +23,5 @@ func SetupDatabase(databaseURL string) {
 		log.Fatalf("Erro ao verificar a conexão com o banco de dados: %v", err)
 	}
 
-	DB = db
+	return db
 }

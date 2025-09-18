@@ -1,21 +1,23 @@
 package repository
 
 import (
-	"api-gym-on-go/src/config/database"
 	"api-gym-on-go/src/config/utils"
 	"api-gym-on-go/src/models"
+	auth_types "api-gym-on-go/src/modules/auth/types"
 	"database/sql"
 )
 
-type UserRepository struct {
+type AuthRepository struct {
 	DB *sql.DB
 }
 
-func NewAuthRepository() *UserRepository {
-	return &UserRepository{DB: database.DB}
+func NewAuthRepository(db *sql.DB) *AuthRepository {
+	return &AuthRepository{db}
 }
 
-func (r *UserRepository) FindByEmail(email string) (*models.User, error) {
+var _ auth_types.IAuthRepository = &AuthRepository{}
+
+func (r *AuthRepository) FindByEmail(email string) (*models.User, error) {
 	var user models.User
 
 	query := `

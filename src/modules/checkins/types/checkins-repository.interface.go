@@ -1,4 +1,4 @@
-package interfaces
+package checkin_types
 
 import "api-gym-on-go/src/models"
 

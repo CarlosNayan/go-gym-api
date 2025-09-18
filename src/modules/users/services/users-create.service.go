@@ -3,23 +3,22 @@ package services
 import (
 	"api-gym-on-go/src/config/errors"
 	"api-gym-on-go/src/models"
-	"api-gym-on-go/src/modules/users/interfaces"
-	"fmt"
+	users_schemas "api-gym-on-go/src/modules/users/schemas"
+	users_types "api-gym-on-go/src/modules/users/types"
 
 	"golang.org/x/crypto/bcrypt"
 )
 
 type UsersCreateService struct {
-	UserRepository interfaces.UserRepository
+	UserRepository users_types.UserRepository
 }
 
-func NewUsersCreateService(userRepo interfaces.UserRepository) *UsersCreateService {
+func NewUsersCreateService(userRepo users_types.UserRepository) *UsersCreateService {
 	return &UsersCreateService{UserRepository: userRepo}
 }
 
-func (ucs *UsersCreateService) CreateUser(user *models.User) (createdUser *models.User, err error) {
+func (ucs *UsersCreateService) CreateUser(user *users_schemas.UserCreateBody) (createdUser *models.User, err error) {
 	emailExist, err := ucs.UserRepository.UserEmailVerify(user.Email)
-	fmt.Println(emailExist != nil && *emailExist == user.Email)
 	if emailExist != nil && *emailExist == user.Email {
 		return nil, &errors.UserAlreadyExistsError{}
 	} else if err != nil {

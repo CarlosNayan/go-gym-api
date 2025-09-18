@@ -1,4 +1,4 @@
-package utils
+package validate
 
 import (
 	"bytes"
@@ -24,17 +24,8 @@ type FileUploadDTO struct {
 	OriginalName string `validate:"required"`
 }
 
-type Country string
-
-const (
-	BR Country = "BR"
-	US Country = "US"
-	AR Country = "AR"
-	PT Country = "PT"
-)
-
 // Função genérica para validar e parsear o corpo JSON
-func ValidateAndParseBody[T any](ctx *fiber.Ctx) (*T, error) {
+func ParseBody[T any](ctx *fiber.Ctx) (*T, error) {
 	// Lê o corpo da requisição
 	body := ctx.Body()
 
@@ -56,7 +47,7 @@ func ValidateAndParseBody[T any](ctx *fiber.Ctx) (*T, error) {
 }
 
 // Função genérica para validar e mapear parâmetros
-func ValidateAndParseParams[T any](ctx *fiber.Ctx) (*T, error) {
+func ParseParams[T any](ctx *fiber.Ctx) (*T, error) {
 	var parsedParams T
 	paramStruct := reflect.ValueOf(&parsedParams).Elem()
 
@@ -98,7 +89,7 @@ func ValidateAndParseParams[T any](ctx *fiber.Ctx) (*T, error) {
 }
 
 // Função genérica para validar e mapear query params
-func ValidateAndParseQueryParams[T any](ctx *fiber.Ctx) (*T, error) {
+func ParseQueryParams[T any](ctx *fiber.Ctx) (*T, error) {
 	var parsedParams T
 	paramStruct := reflect.ValueOf(&parsedParams).Elem()
 
@@ -140,7 +131,7 @@ func ValidateAndParseQueryParams[T any](ctx *fiber.Ctx) (*T, error) {
 }
 
 // Função genérica para validar arquivos enviados por multipart/form-data
-func ValidateAndParseFile(ctx *fiber.Ctx) (*FileUploadDTO, error) {
+func ParseFile(ctx *fiber.Ctx) (*FileUploadDTO, error) {
 	// Obter o arquivo enviado
 	fileHeader, err := ctx.FormFile("file")
 	if err != nil {
@@ -186,7 +177,7 @@ func ValidateAndParseFile(ctx *fiber.Ctx) (*FileUploadDTO, error) {
 }
 
 // Função para validar e-mail invalido
-func ValidateUserEmail(email string) bool {
+func UserEmail(email string) bool {
 	var dominiosEmailsTemporarios = []string{
 		"tuamaeaquelaursa.com",
 		"temp-mail.org",

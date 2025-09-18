@@ -4,23 +4,23 @@ import (
 	"api-gym-on-go/src/config/errors"
 	"api-gym-on-go/src/config/utils"
 	"api-gym-on-go/src/models"
-	"api-gym-on-go/src/modules/checkins/interfaces"
-	"api-gym-on-go/src/modules/checkins/schemas"
+	checkin_schemas "api-gym-on-go/src/modules/checkins/schemas"
+	checkin_types "api-gym-on-go/src/modules/checkins/types"
 )
 
 type CheckinCreate struct {
-	checkinsRepository interfaces.CheckinsRepository
+	checkinsRepository checkin_types.CheckinsRepository
 }
 
-func NewCheckinCreateService(checkinsRepository interfaces.CheckinsRepository) *CheckinCreate {
+func NewCheckinCreateService(checkinsRepository checkin_types.CheckinsRepository) *CheckinCreate {
 	return &CheckinCreate{checkinsRepository: checkinsRepository}
 }
 
-func (cc *CheckinCreate) CreateCheckin(body *schemas.CheckinCreateBody) error {
-	checkinAlrightExistsToday, err := cc.checkinsRepository.FindCheckinByIdOnDate(body.IDUser)
+func (cc *CheckinCreate) Execute(IDUser string, body *checkin_schemas.CheckinCreateBody) error {
+	checkinAlrightExistsToday, err := cc.checkinsRepository.FindCheckinByIdOnDate(IDUser)
 	if err != nil {
 		return err
-	} else if checkinAlrightExistsToday != nil && checkinAlrightExistsToday.IDUser == body.IDUser {
+	} else if checkinAlrightExistsToday != nil && checkinAlrightExistsToday.IDUser == IDUser {
 		return &errors.MaxNumberOfCheckinsError{}
 	}
 
@@ -41,7 +41,7 @@ func (cc *CheckinCreate) CreateCheckin(body *schemas.CheckinCreateBody) error {
 	}
 
 	checkin := models.Checkin{
-		IDUser: body.IDUser,
+		IDUser: IDUser,
 		IDGym:  body.IDGym,
 	}
 

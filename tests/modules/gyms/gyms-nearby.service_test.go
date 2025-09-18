@@ -3,7 +3,6 @@ package gyms_e2e_test
 import (
 	gyms_e2e_test_kit "api-gym-on-go/tests/modules/gyms/testkit"
 	"api-gym-on-go/tests/utils"
-	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -18,8 +17,6 @@ func TestGymsNearbyE2E(t *testing.T) {
 			},
 		}
 		resp := utils.RunHTTPTestRequest(t, "gyms", "GET", "/gyms/nearby?latitude=1.23456&longitude=1.23456", opt)
-
-		fmt.Println(resp.Arr)
 
 		var found bool
 		for _, item := range resp.Arr {

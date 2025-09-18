@@ -4,30 +4,28 @@ import (
 	"api-gym-on-go/src/config/errors"
 	"api-gym-on-go/src/config/handlers"
 	"api-gym-on-go/src/config/middleware"
-	"api-gym-on-go/src/models"
+	"api-gym-on-go/src/config/validate"
 	"api-gym-on-go/src/modules/gyms/repository"
+	gyms_schemas "api-gym-on-go/src/modules/gyms/schemas"
 	"api-gym-on-go/src/modules/gyms/services"
-	"fmt"
+	"database/sql"
 	"math"
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"
 )
 
-func Register(app *fiber.App) {
-	gymsRepo := repository.NewGymsRepository()
-	gymCreateService := services.NewGymsCreateService(gymsRepo)
-	gymNearbyService := services.NewGymsNearbyService(gymsRepo)
-	gymSearchService := services.NewGymsSearchService(gymsRepo)
-
+func Register(app *fiber.App, db *sql.DB) {
 	app.Post("/gyms/create", middleware.ValidateJWT, func(c *fiber.Ctx) error {
-		var gym models.Gym
-
-		if err := c.BodyParser(&gym); err != nil {
-			return handlers.HandleHTTPError(c, err)
+		body, err := validate.ParseBody[gyms_schemas.GymCreateBody](c)
+		if err != nil {
+			return handlers.HandleHTTPError(c, &errors.CustomError{Message: err.Error(), Code: 400})
 		}
 
-		err := gymCreateService.CreateGym(&gym)
+		repo := repository.NewGymsRepository(db)
+		service := services.NewGymsCreateService(repo)
+
+		gym, err := service.CreateGym(body)
 		if err != nil {
 			return handlers.HandleHTTPError(c, err)
 		}
@@ -41,7 +39,7 @@ func Register(app *fiber.App) {
 		if err != nil || math.Abs(latitude) > 90 {
 			return handlers.HandleHTTPError(c, &errors.CustomError{
 				Message: "Invalid latitude",
-				Code:    fiber.StatusBadRequest,
+				Code:    400,
 			})
 		}
 
@@ -50,11 +48,14 @@ func Register(app *fiber.App) {
 		if err != nil || math.Abs(longitude) > 180 {
 			return handlers.HandleHTTPError(c, &errors.CustomError{
 				Message: "Invalid longitude",
-				Code:    fiber.StatusBadRequest,
+				Code:    400,
 			})
 		}
 
-		gyms, err := gymNearbyService.GetGymsNearby(latitude, longitude)
+		repo := repository.NewGymsRepository(db)
+		service := services.NewGymsNearbyService(repo)
+
+		gyms, err := service.GetGymsNearby(latitude, longitude)
 		if err != nil {
 			return handlers.HandleHTTPError(c, err)
 		}
@@ -63,11 +64,16 @@ func Register(app *fiber.App) {
 	})
 
 	app.Get("/gyms/search", func(c *fiber.Ctx) error {
-		query := c.Query("query")
-
-		gyms, err := gymSearchService.SearchGyms(query)
+		query, err := validate.ParseQueryParams[gyms_schemas.GymsSearchQuery](c)
 		if err != nil {
-			fmt.Println(err)
+			return handlers.HandleHTTPError(c, &errors.CustomError{Message: err.Error(), Code: 400})
+		}
+
+		repo := repository.NewGymsRepository(db)
+		service := services.NewGymsSearchService(repo)
+
+		gyms, err := service.SearchGyms(query.Query)
+		if err != nil {
 			return handlers.HandleHTTPError(c, err)
 		}
 

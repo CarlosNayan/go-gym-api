@@ -2,14 +2,14 @@ package services
 
 import (
 	"api-gym-on-go/src/config/errors"
-	"api-gym-on-go/src/modules/users/interfaces"
+	users_types "api-gym-on-go/src/modules/users/types"
 )
 
 type UsersMeService struct {
-	UserRepository interfaces.UserRepository
+	UserRepository users_types.UserRepository
 }
 
-func NewUsersMeService(userRepo interfaces.UserRepository) *UsersMeService {
+func NewUsersMeService(userRepo users_types.UserRepository) *UsersMeService {
 	return &UsersMeService{UserRepository: userRepo}
 }
 

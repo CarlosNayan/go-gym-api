@@ -1,4 +1,4 @@
-package schemas
+package checkin_schemas
 
 import (
 	"fmt"
@@ -7,7 +7,6 @@ import (
 )
 
 type CheckinCreateBody struct {
-	IDUser        string  `json:"id_user" validate:"required"`
 	IDGym         string  `json:"id_gym" validate:"required"`
 	UserLatitude  float64 `json:"user_latitude" validate:"required,latitude"`
 	UserLongitude float64 `json:"user_longitude" validate:"required,longitude"`
