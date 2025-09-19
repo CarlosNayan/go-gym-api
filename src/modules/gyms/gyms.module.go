@@ -33,7 +33,7 @@ func Register(app *fiber.App, db *sql.DB) {
 		return c.Status(fiber.StatusCreated).JSON(gym)
 	})
 
-	app.Get("/gyms/nearby", func(c *fiber.Ctx) error {
+	app.Get("/gyms/nearby", middleware.ValidateJWT, func(c *fiber.Ctx) error {
 		latitudeStr := c.Query("latitude")
 		latitude, err := strconv.ParseFloat(latitudeStr, 64)
 		if err != nil || math.Abs(latitude) > 90 {
@@ -63,7 +63,7 @@ func Register(app *fiber.App, db *sql.DB) {
 		return c.JSON(gyms)
 	})
 
-	app.Get("/gyms/search", func(c *fiber.Ctx) error {
+	app.Get("/gyms/search", middleware.ValidateJWT, func(c *fiber.Ctx) error {
 		query, err := validate.ParseQueryParams[gyms_schemas.GymsSearchQuery](c)
 		if err != nil {
 			return handlers.HandleHTTPError(c, &errors.CustomError{Message: err.Error(), Code: 400})
