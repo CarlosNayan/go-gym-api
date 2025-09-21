@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"strconv"
 	"syscall"
 	"time"
 
@@ -21,7 +22,7 @@ import (
 	"go.opentelemetry.io/otel/sdk/metric"
 	"go.opentelemetry.io/otel/sdk/resource"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
-	semconv "go.opentelemetry.io/otel/semconv/v1.21.0"
+	semconv "go.opentelemetry.io/otel/semconv/v1.37.0"
 	"go.opentelemetry.io/otel/trace"
 	"google.golang.org/grpc/encoding/gzip"
 )
@@ -31,51 +32,24 @@ type Providers struct {
 	MeterProvider  *metric.MeterProvider
 }
 
-// MetricJob representa uma métrica a ser registrada
-type MetricJob struct {
-	Ctx        context.Context // <- context.Context
-	Method     string
-	Route      string
-	StatusCode int
-	Duration   float64
-}
-
-// TraceJob representa um span a ser finalizado
-type TraceJob struct {
-	Ctx        context.Context
-	Span       trace.Span
-	StatusCode int
-	Err        error
-}
-
-// Fila de métricas
-var metricQueue chan MetricJob
-
-// Fila de traces
-var traceQueue chan TraceJob
-
-// InitOTEL inicializa os providers de métricas e traces
 func InitOTEL(ctx context.Context) (*Providers, error) {
 	endpoint := os.Getenv("OTEL_EXPORTER_OTLP_ENDPOINT")
 	if endpoint == "" {
 		return nil, fmt.Errorf("OTEL_EXPORTER_OTLP_ENDPOINT not set")
 	}
 
-	// Intervalo e timeout configuráveis
 	exportInterval := 10 * time.Second
 	exportTimeout := 5 * time.Second
 
-	// Trace exporter (gRPC + GZIP)
 	traceExp, err := otlptracegrpc.New(ctx,
 		otlptracegrpc.WithEndpoint(endpoint),
-		otlptracegrpc.WithInsecure(), // trocar para TLS em produção
+		otlptracegrpc.WithInsecure(),
 		otlptracegrpc.WithCompressor(gzip.Name),
 	)
 	if err != nil {
 		return nil, err
 	}
 
-	// Metric exporter (gRPC + GZIP)
 	metricExp, err := otlpmetricgrpc.New(ctx,
 		otlpmetricgrpc.WithEndpoint(endpoint),
 		otlpmetricgrpc.WithInsecure(),
@@ -85,12 +59,10 @@ func InitOTEL(ctx context.Context) (*Providers, error) {
 		return nil, err
 	}
 
-	// Resource metadata
 	res, err := resource.New(ctx,
 		resource.WithAttributes(
 			semconv.ServiceName("api-gym-on-go"),
 			semconv.ServiceVersion("1.0.0"),
-			semconv.DeploymentEnvironment(os.Getenv("DEPLOY_ENV")),
 		),
 	)
 	if err != nil {
@@ -116,7 +88,6 @@ func InitOTEL(ctx context.Context) (*Providers, error) {
 	otel.SetTracerProvider(tp)
 	otel.SetMeterProvider(mp)
 
-	// Graceful shutdown
 	go func() {
 		c := make(chan os.Signal, 1)
 		signal.Notify(c, syscall.SIGINT, syscall.SIGTERM)
@@ -132,17 +103,21 @@ func InitOTEL(ctx context.Context) (*Providers, error) {
 		if err := mp.Shutdown(ctx); err != nil {
 			log.Printf("Error shutting down meter provider: %v", err)
 		}
-		os.Exit(0) // encerra a aplicação
+		os.Exit(0)
 	}()
 
 	return &Providers{TracerProvider: tp, MeterProvider: mp}, nil
 }
 
-// InitDB registra o driver do Postgres com métricas
 func InitDB(dsn string) *sql.DB {
 	driverName, err := otelsql.Register(
 		"postgres",
-		otelsql.WithSystem(semconv.DBSystemPostgreSQL),
+		otelsql.AllowRoot(),
+		otelsql.TraceQueryWithoutArgs(),
+		otelsql.TraceRowsClose(),
+		otelsql.TraceRowsAffected(),
+		otelsql.WithDatabaseName("go-gym-api"),
+		otelsql.WithSystem(semconv.DBSystemNamePostgreSQL),
 	)
 	if err != nil {
 		log.Fatalf("Warning: could not register db driver: %v", err)
@@ -157,7 +132,6 @@ func InitDB(dsn string) *sql.DB {
 	db.SetMaxIdleConns(25)
 	db.SetConnMaxLifetime(30 * time.Minute)
 
-	// Testa conexão imediatamente
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
@@ -165,7 +139,6 @@ func InitDB(dsn string) *sql.DB {
 		log.Fatalf("Erro ao verificar a conexão com o banco de dados: %v", err)
 	}
 
-	// Registrar métricas de stats do DB
 	if err := otelsql.RecordStats(db); err != nil {
 		log.Fatalf("Warning: could not record db stats: %v", err)
 	}
@@ -173,35 +146,49 @@ func InitDB(dsn string) *sql.DB {
 	return db
 }
 
-func FiberOtelMiddleware(serviceName string) fiber.Handler {
+func FiberOtelTracingMiddleware(serviceName string) fiber.Handler {
 	tracer := otel.Tracer(serviceName)
 
 	return func(c *fiber.Ctx) error {
+		methodRaw := c.Method()
+		method := string([]byte(methodRaw))
+
+		routeRaw := ""
+		if c.Route() != nil && c.Route().Path != "" {
+			routeRaw = c.Route().Path
+		} else {
+			routeRaw = c.Path()
+		}
+		routePath := string([]byte(routeRaw))
+
+		originalURLRaw := c.OriginalURL()
+		originalURL := string([]byte(originalURLRaw))
+
 		ctx, span := tracer.Start(c.Context(),
-			c.Method()+" "+c.Path(),
+			fmt.Sprintf("%s %s", method, routePath),
 			trace.WithAttributes(
-				attribute.String("http.method", c.Method()),
-				attribute.String("http.route", c.Route().Path),
-				attribute.String("http.url", c.OriginalURL()),
+				attribute.String("http.method", method),
+				attribute.String("http.route", routePath),
+				attribute.String("http.url", originalURL),
 			),
 		)
 		defer span.End()
 
-		// injeta o ctx no Fiber
 		c.SetUserContext(ctx)
 
 		err := c.Next()
+
 		if err != nil {
 			span.RecordError(err)
 		}
 		span.SetAttributes(attribute.Int("http.status_code", c.Response().StatusCode()))
+
 		return err
 	}
 }
 
-// FiberMetricsMiddleware cria um middleware que registra métricas HTTP.
-func FiberMetricsMiddleware() fiber.Handler {
-	meter := otel.Meter("api-gym-on-go")
+func FiberOtelMetricsMiddleware(serviceName string) fiber.Handler {
+	meter := otel.Meter(serviceName)
 
 	requestDuration, err := meter.Float64Histogram(
 		"http.server.duration",
@@ -214,13 +201,31 @@ func FiberMetricsMiddleware() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		start := time.Now()
 		err := c.Next()
-		duration := time.Since(start).Seconds() // segundos
+		duration := time.Since(start).Seconds()
 
 		ctx := c.UserContext()
+		if ctx == nil {
+			ctx = context.Background()
+		}
+
+		methodRaw := c.Method()
+		method := string([]byte(methodRaw))
+
+		routeRaw := ""
+		if c.Route() != nil && c.Route().Path != "" {
+			routeRaw = c.Route().Path
+		} else {
+			routeRaw = c.Path()
+		}
+		routePath := string([]byte(routeRaw))
+
+		statusRaw := c.Response().StatusCode()
+		statusCode := int([]byte(strconv.Itoa(statusRaw))[0])
+
 		attrs := []attribute.KeyValue{
-			attribute.String("http.method", c.Method()),
-			attribute.String("http.route", c.Route().Path),
-			attribute.Int("http.status_code", c.Response().StatusCode()),
+			attribute.String("http.method", method),
+			attribute.String("http.route", routePath),
+			attribute.Int("http.status_code", statusCode),
 		}
 
 		requestDuration.Record(ctx, duration, otelMetric.WithAttributes(attrs...))

@@ -48,9 +48,6 @@ func main() {
 		DisableStartupMessage: true,
 	})
 
-	app.Use(monitoring.FiberOtelMiddleware("api-gym-on-go"))
-	app.Use(monitoring.FiberMetricsMiddleware())
-
 	app.Use(cors.New(cors.Config{
 		AllowOriginsFunc: func(origin string) bool {
 			return true
@@ -89,6 +86,9 @@ func main() {
 		TimeZone:      "UTC",
 		DisableColors: true,
 	}))
+
+	app.Use(monitoring.FiberOtelTracingMiddleware("api-gym-on-go"))
+	app.Use(monitoring.FiberOtelMetricsMiddleware("api-gym-on-go"))
 
 	// Register modules
 	auth.Register(app, db)

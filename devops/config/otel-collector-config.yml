@@ -21,15 +21,15 @@ processors:
 
 extensions:
   zpages:
-     endpoint: 0.0.0.0:55679
+    endpoint: 0.0.0.0:55679
 
 service:
-  extensions: [zpages]  # Enable zpages
+  extensions: [zpages]
   pipelines:
     metrics:
       receivers: [otlp]
       processors: [batch, attributes]
-      exporters: [prometheus]
+      exporters: [prometheus, debug]
     traces:
       receivers: [otlp]
       processors: [batch]
