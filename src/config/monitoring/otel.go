@@ -7,7 +7,6 @@ import (
 	"log"
 	"os"
 	"os/signal"
-	"strconv"
 	"syscall"
 	"time"
 
@@ -191,7 +190,7 @@ func FiberOtelMetricsMiddleware(serviceName string) fiber.Handler {
 	meter := otel.Meter(serviceName)
 
 	requestDuration, err := meter.Float64Histogram(
-		"http.server.duration",
+		"http.server.metrics",
 		otelMetric.WithUnit("s"),
 	)
 	if err != nil {
@@ -220,12 +219,11 @@ func FiberOtelMetricsMiddleware(serviceName string) fiber.Handler {
 		routePath := string([]byte(routeRaw))
 
 		statusRaw := c.Response().StatusCode()
-		statusCode := int([]byte(strconv.Itoa(statusRaw))[0])
 
 		attrs := []attribute.KeyValue{
 			attribute.String("http.method", method),
 			attribute.String("http.route", routePath),
-			attribute.Int("http.status_code", statusCode),
+			attribute.Int("http.status_code", statusRaw),
 		}
 
 		requestDuration.Record(ctx, duration, otelMetric.WithAttributes(attrs...))
