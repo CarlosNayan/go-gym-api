@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package monitoring;
+
+option go_package = "./monitoringpb"; 
+
+message HttpMetric {
+  string http_method = 1;      
+  string http_route = 2;       
+  string original_url = 3;     
+  string http_status_code = 4; 
+  double duration_ms = 5; 
+  string instance = 6;         
+  int64 created_at_unix = 7; 
+}
+
+message AckResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+service MonitoringService {
+  rpc SendHttpMetric (HttpMetric) returns (AckResponse);
+  rpc StreamHttpMetrics (stream HttpMetric) returns (AckResponse);
+}

@@ -9,12 +9,12 @@ import (
 )
 
 var (
-	JWT_SECRET                  string
-	CRYPTO_SECRET               string
-	DATABASE_URL                string
-	OTEL_EXPORTER_OTLP_ENDPOINT string
-	PORT                        int
-	ENVIRONMENT                 string
+	JWT_SECRET                     string
+	CRYPTO_SECRET                  string
+	DATABASE_URL                   string
+	GRPC_METRICS_EXPORTER_ENDPOINT string
+	PORT                           int
+	ENVIRONMENT                    string
 )
 
 func LoadEnv() {
@@ -31,7 +31,7 @@ func LoadEnv() {
 		JWT_SECRET = getEnv("JWT_SECRET", "")
 		CRYPTO_SECRET = getEnv("CRYPTO_SECRET", "")
 		DATABASE_URL = getEnv("DATABASE_URL", "")
-		OTEL_EXPORTER_OTLP_ENDPOINT = getEnv("OTEL_EXPORTER_OTLP_ENDPOINT", "")
+		GRPC_METRICS_EXPORTER_ENDPOINT = getEnv("GRPC_METRICS_EXPORTER_ENDPOINT", "")
 		ENVIRONMENT = getEnv("ENVIRONMENT", "development")
 
 		if err := validateEnv(); err != nil {
@@ -54,8 +54,8 @@ func validateEnv() error {
 	if DATABASE_URL == "" {
 		return fmt.Errorf("DATABASE_URL não pode estar vazio")
 	}
-	if OTEL_EXPORTER_OTLP_ENDPOINT == "" {
-		return fmt.Errorf("OTEL_EXPORTER_OTLP_ENDPOINT não pode estar vazio")
+	if GRPC_METRICS_EXPORTER_ENDPOINT == "" {
+		return fmt.Errorf("GRPC_METRICS_EXPORTER_ENDPOINT não pode estar vazio")
 	}
 	return nil
 }

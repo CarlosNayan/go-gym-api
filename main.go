@@ -1,15 +1,14 @@
 package main
 
 import (
-	"context"
 	"fmt"
-	"log"
 	"os"
 	"strings"
 	"time"
 
+	"api-gym-on-go/src/config/database"
 	"api-gym-on-go/src/config/env"
-	"api-gym-on-go/src/config/monitoring"
+	"api-gym-on-go/src/config/middleware"
 	"api-gym-on-go/src/config/utils"
 	"api-gym-on-go/src/modules/auth"
 	"api-gym-on-go/src/modules/checkins"
@@ -23,27 +22,12 @@ import (
 )
 
 func main() {
-	// Load environment variables
 	env.LoadEnv()
 
-	// OTEL context
-	ctx := context.Background()
+	middleware.InitGrpcClient()
 
-	// OTEL startup
-	provs, err := monitoring.InitOTEL(ctx)
-	if err != nil {
-		log.Fatalf("failed to init OTEL: %v", err)
-	}
-	// Shutdown OTEL providers
-	defer func() {
-		_ = provs.TracerProvider.Shutdown(ctx)
-		_ = provs.MeterProvider.Shutdown(ctx)
-	}()
+	db := database.SetupDatabase(env.DATABASE_URL)
 
-	// Start DB instrumented
-	db := monitoring.InitDB(env.DATABASE_URL)
-
-	// Startup services
 	app := fiber.New(fiber.Config{
 		DisableStartupMessage: true,
 	})
@@ -87,8 +71,7 @@ func main() {
 		DisableColors: true,
 	}))
 
-	app.Use(monitoring.FiberOtelTracingMiddleware("api-gym-on-go"))
-	app.Use(monitoring.FiberOtelMetricsMiddleware("api-gym-on-go"))
+	app.Use(middleware.GrpcMetricsMiddleware())
 
 	// Register modules
 	auth.Register(app, db)
@@ -98,7 +81,7 @@ func main() {
 
 	utils.RouteLogger(app, env.PORT)
 
-	err = app.Listen(fmt.Sprintf(":%d", env.PORT))
+	err := app.Listen(fmt.Sprintf(":%d", env.PORT))
 	if err != nil {
 		fmt.Printf("Erro ao iniciar o servidor: %v\n", err)
 		os.Exit(1)
