@@ -19,8 +19,7 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	MonitoringService_SendHttpMetric_FullMethodName    = "/monitoring.MonitoringService/SendHttpMetric"
-	MonitoringService_StreamHttpMetrics_FullMethodName = "/monitoring.MonitoringService/StreamHttpMetrics"
+	MonitoringService_SendHttpMetric_FullMethodName = "/monitoring.MonitoringService/SendHttpMetric"
 )
 
 // MonitoringServiceClient is the client API for MonitoringService service.
@@ -28,7 +27,6 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type MonitoringServiceClient interface {
 	SendHttpMetric(ctx context.Context, in *HttpMetric, opts ...grpc.CallOption) (*AckResponse, error)
-	StreamHttpMetrics(ctx context.Context, opts ...grpc.CallOption) (grpc.ClientStreamingClient[HttpMetric, AckResponse], error)
 }
 
 type monitoringServiceClient struct {
@@ -49,25 +47,11 @@ func (c *monitoringServiceClient) SendHttpMetric(ctx context.Context, in *HttpMe
 	return out, nil
 }
 
-func (c *monitoringServiceClient) StreamHttpMetrics(ctx context.Context, opts ...grpc.CallOption) (grpc.ClientStreamingClient[HttpMetric, AckResponse], error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	stream, err := c.cc.NewStream(ctx, &MonitoringService_ServiceDesc.Streams[0], MonitoringService_StreamHttpMetrics_FullMethodName, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	x := &grpc.GenericClientStream[HttpMetric, AckResponse]{ClientStream: stream}
-	return x, nil
-}
-
-// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
-type MonitoringService_StreamHttpMetricsClient = grpc.ClientStreamingClient[HttpMetric, AckResponse]
-
 // MonitoringServiceServer is the server API for MonitoringService service.
 // All implementations must embed UnimplementedMonitoringServiceServer
 // for forward compatibility.
 type MonitoringServiceServer interface {
 	SendHttpMetric(context.Context, *HttpMetric) (*AckResponse, error)
-	StreamHttpMetrics(grpc.ClientStreamingServer[HttpMetric, AckResponse]) error
 	mustEmbedUnimplementedMonitoringServiceServer()
 }
 
@@ -80,9 +64,6 @@ type UnimplementedMonitoringServiceServer struct{}
 
 func (UnimplementedMonitoringServiceServer) SendHttpMetric(context.Context, *HttpMetric) (*AckResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SendHttpMetric not implemented")
-}
-func (UnimplementedMonitoringServiceServer) StreamHttpMetrics(grpc.ClientStreamingServer[HttpMetric, AckResponse]) error {
-	return status.Errorf(codes.Unimplemented, "method StreamHttpMetrics not implemented")
 }
 func (UnimplementedMonitoringServiceServer) mustEmbedUnimplementedMonitoringServiceServer() {}
 func (UnimplementedMonitoringServiceServer) testEmbeddedByValue()                           {}
@@ -123,13 +104,6 @@ func _MonitoringService_SendHttpMetric_Handler(srv interface{}, ctx context.Cont
 	return interceptor(ctx, in, info, handler)
 }
 
-func _MonitoringService_StreamHttpMetrics_Handler(srv interface{}, stream grpc.ServerStream) error {
-	return srv.(MonitoringServiceServer).StreamHttpMetrics(&grpc.GenericServerStream[HttpMetric, AckResponse]{ServerStream: stream})
-}
-
-// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
-type MonitoringService_StreamHttpMetricsServer = grpc.ClientStreamingServer[HttpMetric, AckResponse]
-
 // MonitoringService_ServiceDesc is the grpc.ServiceDesc for MonitoringService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -142,12 +116,6 @@ var MonitoringService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _MonitoringService_SendHttpMetric_Handler,
 		},
 	},
-	Streams: []grpc.StreamDesc{
-		{
-			StreamName:    "StreamHttpMetrics",
-			Handler:       _MonitoringService_StreamHttpMetrics_Handler,
-			ClientStreams: true,
-		},
-	},
+	Streams:  []grpc.StreamDesc{},
 	Metadata: "metrics.proto",
 }

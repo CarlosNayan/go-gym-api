@@ -22,16 +22,21 @@ const (
 )
 
 type HttpMetric struct {
-	state          protoimpl.MessageState `protogen:"open.v1"`
-	HttpMethod     string                 `protobuf:"bytes,1,opt,name=http_method,json=httpMethod,proto3" json:"http_method,omitempty"`
-	HttpRoute      string                 `protobuf:"bytes,2,opt,name=http_route,json=httpRoute,proto3" json:"http_route,omitempty"`
-	OriginalUrl    string                 `protobuf:"bytes,3,opt,name=original_url,json=originalUrl,proto3" json:"original_url,omitempty"`
-	HttpStatusCode string                 `protobuf:"bytes,4,opt,name=http_status_code,json=httpStatusCode,proto3" json:"http_status_code,omitempty"`
-	DurationMs     float64                `protobuf:"fixed64,5,opt,name=duration_ms,json=durationMs,proto3" json:"duration_ms,omitempty"`
-	Instance       string                 `protobuf:"bytes,6,opt,name=instance,proto3" json:"instance,omitempty"`
-	CreatedAtUnix  int64                  `protobuf:"varint,7,opt,name=created_at_unix,json=createdAtUnix,proto3" json:"created_at_unix,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	HttpMethod      string                 `protobuf:"bytes,1,opt,name=http_method,json=httpMethod,proto3" json:"http_method,omitempty"`
+	HttpRoute       string                 `protobuf:"bytes,2,opt,name=http_route,json=httpRoute,proto3" json:"http_route,omitempty"`
+	OriginalUrl     string                 `protobuf:"bytes,3,opt,name=original_url,json=originalUrl,proto3" json:"original_url,omitempty"`
+	HttpStatusCode  string                 `protobuf:"bytes,4,opt,name=http_status_code,json=httpStatusCode,proto3" json:"http_status_code,omitempty"`
+	DurationMs      float64                `protobuf:"fixed64,5,opt,name=duration_ms,json=durationMs,proto3" json:"duration_ms,omitempty"`
+	Instance        string                 `protobuf:"bytes,6,opt,name=instance,proto3" json:"instance,omitempty"`
+	StartTimeUnix   int64                  `protobuf:"varint,7,opt,name=start_time_unix,json=startTimeUnix,proto3" json:"start_time_unix,omitempty"`
+	RequestHeaders  string                 `protobuf:"bytes,8,opt,name=request_headers,json=requestHeaders,proto3" json:"request_headers,omitempty"`
+	RequestBody     string                 `protobuf:"bytes,9,opt,name=request_body,json=requestBody,proto3" json:"request_body,omitempty"`
+	ResponseHeaders string                 `protobuf:"bytes,10,opt,name=response_headers,json=responseHeaders,proto3" json:"response_headers,omitempty"`
+	ResponseBody    string                 `protobuf:"bytes,11,opt,name=response_body,json=responseBody,proto3" json:"response_body,omitempty"`
+	ErrorMessage    string                 `protobuf:"bytes,12,opt,name=error_message,json=errorMessage,proto3" json:"error_message,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
 }
 
 func (x *HttpMetric) Reset() {
@@ -106,11 +111,46 @@ func (x *HttpMetric) GetInstance() string {
 	return ""
 }
 
-func (x *HttpMetric) GetCreatedAtUnix() int64 {
+func (x *HttpMetric) GetStartTimeUnix() int64 {
 	if x != nil {
-		return x.CreatedAtUnix
+		return x.StartTimeUnix
 	}
 	return 0
+}
+
+func (x *HttpMetric) GetRequestHeaders() string {
+	if x != nil {
+		return x.RequestHeaders
+	}
+	return ""
+}
+
+func (x *HttpMetric) GetRequestBody() string {
+	if x != nil {
+		return x.RequestBody
+	}
+	return ""
+}
+
+func (x *HttpMetric) GetResponseHeaders() string {
+	if x != nil {
+		return x.ResponseHeaders
+	}
+	return ""
+}
+
+func (x *HttpMetric) GetResponseBody() string {
+	if x != nil {
+		return x.ResponseBody
+	}
+	return ""
+}
+
+func (x *HttpMetric) GetErrorMessage() string {
+	if x != nil {
+		return x.ErrorMessage
+	}
+	return ""
 }
 
 type AckResponse struct {
@@ -170,7 +210,7 @@ var File_metrics_proto protoreflect.FileDescriptor
 const file_metrics_proto_rawDesc = "" +
 	"\n" +
 	"\rmetrics.proto\x12\n" +
-	"monitoring\"\xfe\x01\n" +
+	"monitoring\"\xbf\x03\n" +
 	"\n" +
 	"HttpMetric\x12\x1f\n" +
 	"\vhttp_method\x18\x01 \x01(\tR\n" +
@@ -182,13 +222,18 @@ const file_metrics_proto_rawDesc = "" +
 	"\vduration_ms\x18\x05 \x01(\x01R\n" +
 	"durationMs\x12\x1a\n" +
 	"\binstance\x18\x06 \x01(\tR\binstance\x12&\n" +
-	"\x0fcreated_at_unix\x18\a \x01(\x03R\rcreatedAtUnix\"A\n" +
+	"\x0fstart_time_unix\x18\a \x01(\x03R\rstartTimeUnix\x12'\n" +
+	"\x0frequest_headers\x18\b \x01(\tR\x0erequestHeaders\x12!\n" +
+	"\frequest_body\x18\t \x01(\tR\vrequestBody\x12)\n" +
+	"\x10response_headers\x18\n" +
+	" \x01(\tR\x0fresponseHeaders\x12#\n" +
+	"\rresponse_body\x18\v \x01(\tR\fresponseBody\x12#\n" +
+	"\rerror_message\x18\f \x01(\tR\ferrorMessage\"A\n" +
 	"\vAckResponse\x12\x18\n" +
 	"\asuccess\x18\x01 \x01(\bR\asuccess\x12\x18\n" +
-	"\amessage\x18\x02 \x01(\tR\amessage2\x9e\x01\n" +
+	"\amessage\x18\x02 \x01(\tR\amessage2V\n" +
 	"\x11MonitoringService\x12A\n" +
-	"\x0eSendHttpMetric\x12\x16.monitoring.HttpMetric\x1a\x17.monitoring.AckResponse\x12F\n" +
-	"\x11StreamHttpMetrics\x12\x16.monitoring.HttpMetric\x1a\x17.monitoring.AckResponse(\x01B\x10Z\x0e./monitoringpbb\x06proto3"
+	"\x0eSendHttpMetric\x12\x16.monitoring.HttpMetric\x1a\x17.monitoring.AckResponseB\x10Z\x0e./monitoringpbb\x06proto3"
 
 var (
 	file_metrics_proto_rawDescOnce sync.Once
@@ -209,11 +254,9 @@ var file_metrics_proto_goTypes = []any{
 }
 var file_metrics_proto_depIdxs = []int32{
 	0, // 0: monitoring.MonitoringService.SendHttpMetric:input_type -> monitoring.HttpMetric
-	0, // 1: monitoring.MonitoringService.StreamHttpMetrics:input_type -> monitoring.HttpMetric
-	1, // 2: monitoring.MonitoringService.SendHttpMetric:output_type -> monitoring.AckResponse
-	1, // 3: monitoring.MonitoringService.StreamHttpMetrics:output_type -> monitoring.AckResponse
-	2, // [2:4] is the sub-list for method output_type
-	0, // [0:2] is the sub-list for method input_type
+	1, // 1: monitoring.MonitoringService.SendHttpMetric:output_type -> monitoring.AckResponse
+	1, // [1:2] is the sub-list for method output_type
+	0, // [0:1] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name
 	0, // [0:0] is the sub-list for extension extendee
 	0, // [0:0] is the sub-list for field type_name
